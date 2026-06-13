@@ -1,0 +1,163 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── NextAuth / Auth.js tables ────────────────────────────────────────────
+model User {
+  id            String     @id @default(cuid())
+  name          String?
+  email         String?    @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  campaigns     Campaign[]
+  createdAt     DateTime   @default(now())
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─── App domain ───────────────────────────────────────────────────────────
+enum CampaignStatus {
+  DRAFT
+  PROVISIONING
+  ACTIVE
+  PAUSED
+  COMPLETED
+}
+
+enum ContactStatus {
+  QUEUED
+  SENT
+  OPENED
+  CLICKED
+  REPLIED
+  BOUNCED
+  UNSUBSCRIBED
+  FAILED
+}
+
+enum EventType {
+  SENT
+  OPEN
+  CLICK
+  REPLY
+  BOUNCE
+  UNSUBSCRIBE
+  FAILED
+}
+
+enum StepCondition {
+  ALWAYS
+  NO_REPLY
+  NO_OPEN
+}
+
+model Campaign {
+  id              String         @id @default(cuid())
+  userId          String
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name            String
+  status          CampaignStatus @default(DRAFT)
+  subject         String
+  bodyHtml        String         @db.Text
+  fromAlias       String? // verified send-as, e.g. you@getpickcel.com
+  fromName        String?
+  timezone        String         @default("UTC")
+  sendWindowStart Int            @default(9) // hour 0-23, local to timezone
+  sendWindowEnd   Int            @default(17)
+  dailyCap        Int            @default(500)
+  unsubscribeHtml String?        @db.Text
+  spreadsheetId   String?
+  scriptId        String?
+  steps           SequenceStep[]
+  contacts        Contact[]
+  events          Event[]
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+model SequenceStep {
+  id         String        @id @default(cuid())
+  campaignId String
+  campaign   Campaign      @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  stepOrder  Int // 0 = initial send
+  delayDays  Int           @default(0) // days after the previous step
+  condition  StepCondition @default(NO_REPLY)
+  subject    String? // null on follow-ups = reply within the same thread
+  bodyHtml   String?       @db.Text
+
+  @@unique([campaignId, stepOrder])
+}
+
+model Contact {
+  id          String        @id @default(cuid())
+  campaignId  String
+  campaign    Campaign      @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  email       String
+  firstName   String?
+  lastName    String?
+  company     String?
+  fields      Json? // arbitrary merge fields from the CSV
+  status      ContactStatus @default(QUEUED)
+  currentStep Int           @default(0)
+  threadId    String? // Gmail thread, for reply detection + threaded follow-ups
+  lastSentAt  DateTime?
+  events      Event[]
+  createdAt   DateTime      @default(now())
+
+  @@unique([campaignId, email])
+  @@index([campaignId, status])
+}
+
+model Event {
+  id         String    @id @default(cuid())
+  campaignId String
+  campaign   Campaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  contactId  String?
+  contact    Contact?  @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  type       EventType
+  stepOrder  Int?
+  metadata   Json?
+  createdAt  DateTime  @default(now())
+
+  @@index([campaignId, type])
+  @@index([contactId])
+}
