@@ -1,44 +1,26 @@
 import Link from "next/link";
+import { BoltIcon } from "@heroicons/react/24/outline";
 import {
-  PlusIcon,
-  BoltIcon,
-  SparklesIcon,
-  ShoppingCartIcon,
-  ArrowPathRoundedSquareIcon,
-} from "@heroicons/react/24/outline";
-import {
-  Button,
   Card,
+  EmptyState,
   IconTile,
   PageHeader,
   SectionTitle,
   Stat,
   StatusBadge,
-  type IconType,
 } from "@/components/ui";
-import { automations } from "@/data/automations";
+import { requireUser } from "@/server/auth-helpers";
+import { listAutomations } from "@/server/automations";
 import { formatNumber, relativeTime } from "@/lib/utils";
+import { CreateAutomationButton } from "./CreateAutomationButton";
+import { AutomationStarters } from "./AutomationStarters";
 
-/** Visual-only starter templates shown above the table. */
-const TEMPLATES: { icon: IconType; title: string; desc: string }[] = [
-  {
-    icon: SparklesIcon,
-    title: "Welcome series",
-    desc: "Greet new subscribers and guide their first steps.",
-  },
-  {
-    icon: ShoppingCartIcon,
-    title: "Abandoned cart",
-    desc: "Win back shoppers who left items behind.",
-  },
-  {
-    icon: ArrowPathRoundedSquareIcon,
-    title: "Re-engagement",
-    desc: "Reignite contacts who have gone quiet.",
-  },
-];
+export const dynamic = "force-dynamic";
 
-export default function AutomationsPage() {
+export default async function AutomationsPage() {
+  const user = await requireUser();
+  const automations = await listAutomations(user.id);
+
   const live = automations.filter((a) => a.status === "LIVE");
   const activeCount = automations.reduce((sum, a) => sum + a.active, 0);
   const completedCount = automations.reduce((sum, a) => sum + a.completed, 0);
@@ -53,12 +35,7 @@ export default function AutomationsPage() {
       <PageHeader
         title="Automations"
         subtitle="Trigger-based journeys that run on autopilot."
-        actions={
-          <Button size="sm">
-            <PlusIcon className="h-4 w-4" strokeWidth={2.25} />
-            Create automation
-          </Button>
-        }
+        actions={<CreateAutomationButton />}
       />
 
       <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -85,35 +62,17 @@ export default function AutomationsPage() {
         />
       </section>
 
-      <section className="space-y-3">
-        <SectionTitle>Start from a template</SectionTitle>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {TEMPLATES.map((t) => (
-            <Card
-              key={t.title}
-              className="flex flex-col gap-3 p-4 transition-colors hover:border-line-strong"
-            >
-              <div className="flex items-start gap-3">
-                <IconTile icon={t.icon} tone="accent" />
-                <div className="min-w-0">
-                  <div className="text-sm font-medium text-ink">{t.title}</div>
-                  <p className="mt-0.5 text-xs leading-relaxed text-muted">
-                    {t.desc}
-                  </p>
-                </div>
-              </div>
-              <div className="mt-auto flex justify-end">
-                <Button variant="ghost" size="sm">
-                  Use
-                </Button>
-              </div>
-            </Card>
-          ))}
-        </div>
-      </section>
+      <AutomationStarters />
 
       <section className="space-y-3">
         <SectionTitle>All automations</SectionTitle>
+        {automations.length === 0 ? (
+          <EmptyState
+            icon={BoltIcon}
+            title="No automations yet"
+            description="Create a trigger-based journey from scratch or start from a template above."
+          />
+        ) : (
         <Card className="overflow-hidden p-0">
           <table className="w-full text-sm">
             <thead>
@@ -174,6 +133,7 @@ export default function AutomationsPage() {
             </tbody>
           </table>
         </Card>
+        )}
       </section>
     </div>
   );

@@ -11,6 +11,7 @@
     "lint": "next lint",
     "db:push": "dotenv -e .env.local -- prisma db push",
     "db:generate": "prisma generate",
+    "db:seed": "dotenv -e .env.local -- node prisma/seed.mjs",
     "db:studio": "dotenv -e .env.local -- prisma studio",
     "postinstall": "prisma generate"
   },

@@ -41,14 +41,18 @@ const input =
   "w-full rounded-lg border border-line bg-elevated px-3 py-2 text-sm text-ink placeholder:text-faint transition-colors focus:border-accent-500 focus:outline-none";
 const label = "block text-[13px] font-medium text-muted";
 
-export function NewCampaignWizard() {
+export function NewCampaignWizard({
+  initial,
+}: {
+  initial?: { name?: string; subject?: string; bodyHtml?: string };
+}) {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [phase, setPhase] = useState<"idle" | "creating" | "provisioning">("idle");
   const [error, setError] = useState<string | null>(null);
 
   // Step 0 — details
-  const [name, setName] = useState("");
+  const [name, setName] = useState(initial?.name ?? "");
   const [fromName, setFromName] = useState("");
   const [fromAlias, setFromAlias] = useState("");
   const [timezone, setTimezone] = useState(
@@ -65,8 +69,8 @@ export function NewCampaignWizard() {
   const [mapping, setMapping] = useState<Record<string, Role>>({});
 
   // Step 2 — compose
-  const [subject, setSubject] = useState("");
-  const [bodyHtml, setBodyHtml] = useState("");
+  const [subject, setSubject] = useState(initial?.subject ?? "");
+  const [bodyHtml, setBodyHtml] = useState(initial?.bodyHtml ?? "");
 
   // Step 3 — follow-ups
   const [followups, setFollowups] = useState<Followup[]>([]);

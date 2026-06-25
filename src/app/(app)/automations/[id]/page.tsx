@@ -3,18 +3,14 @@ import { notFound } from "next/navigation";
 import {
   ChevronLeftIcon,
   ChevronDownIcon,
-  PlusIcon,
   BoltIcon,
   EnvelopeIcon,
   ClockIcon,
   ArrowsRightLeftIcon,
   TagIcon,
-  PlayIcon,
-  PauseIcon,
 } from "@heroicons/react/24/outline";
 import {
   Badge,
-  Button,
   Card,
   IconTile,
   PageHeader,
@@ -22,9 +18,12 @@ import {
   StatusBadge,
   type IconType,
 } from "@/components/ui";
-import { getAutomation } from "@/data/automations";
+import { requireUser } from "@/server/auth-helpers";
+import { getAutomation } from "@/server/automations";
 import type { AutomationStep, StepType } from "@/data/automations";
 import { formatNumber } from "@/lib/utils";
+import { AutomationActions } from "./AutomationActions";
+import { AddStepButton } from "./AddStepButton";
 
 type StepStyle = { icon: IconType; tone: "accent" | "info" | "neutral" | "warning" | "success"; kind: string };
 
@@ -78,10 +77,9 @@ export default async function AutomationDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const automation = getAutomation(id);
+  const user = await requireUser();
+  const automation = await getAutomation(user.id, id);
   if (!automation) notFound();
-
-  const isLive = automation.status === "LIVE";
 
   return (
     <div className="space-y-6">
@@ -100,22 +98,7 @@ export default async function AutomationDetailPage({
         actions={
           <>
             <StatusBadge status={automation.status} />
-            <Button variant="secondary" size="sm">
-              Edit
-            </Button>
-            <Button size="sm">
-              {isLive ? (
-                <>
-                  <PauseIcon className="h-4 w-4" strokeWidth={2.25} />
-                  Pause
-                </>
-              ) : (
-                <>
-                  <PlayIcon className="h-4 w-4" strokeWidth={2.25} />
-                  Activate
-                </>
-              )}
-            </Button>
+            <AutomationActions id={automation.id} status={automation.status} />
           </>
         }
       />
@@ -160,13 +143,7 @@ export default async function AutomationDetailPage({
           <div className="flex justify-center">
             <Connector />
           </div>
-          <button
-            type="button"
-            className="group flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-line-strong bg-surface/60 px-4 py-4 text-sm font-medium text-muted transition-colors hover:border-accent-300 hover:bg-accent-soft/40 hover:text-accent-700"
-          >
-            <PlusIcon className="h-4 w-4" strokeWidth={2.25} />
-            Add step
-          </button>
+          <AddStepButton automationId={automation.id} />
         </div>
       </section>
     </div>

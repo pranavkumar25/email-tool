@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import Papa from "papaparse";
 import {
   ChevronLeftIcon,
   ArrowUpTrayIcon,
@@ -9,15 +11,20 @@ import {
   ArrowRightIcon,
   CheckIcon,
   RocketLaunchIcon,
+  CheckCircleIcon,
 } from "@heroicons/react/24/outline";
 import {
   Button,
   Card,
+  Field,
+  Input,
   PageHeader,
   Select,
   Textarea,
   cn,
 } from "@/components/ui";
+import type { SubscriberInput } from "@/server/audience";
+import { importSubscribersAction } from "../actions";
 
 const STEPS = ["Upload", "Map fields", "Review"];
 
@@ -27,26 +34,169 @@ const FIELD_OPTIONS = [
   "Last name",
   "Company",
   "Country",
-  "Custom field",
   "Ignore",
-];
+] as const;
+type FieldKey = (typeof FIELD_OPTIONS)[number];
 
-const CSV_COLUMNS: { name: string; mapTo: string }[] = [
-  { name: "email", mapTo: "Email" },
-  { name: "first_name", mapTo: "First name" },
-  { name: "company", mapTo: "Company" },
-  { name: "country", mapTo: "Country" },
-];
+function guessField(header: string): FieldKey {
+  const h = header.toLowerCase();
+  if (/e-?mail/.test(h)) return "Email";
+  if (/first.?name|fname|given/.test(h)) return "First name";
+  if (/last.?name|lname|surname/.test(h)) return "Last name";
+  if (/company|organi[sz]ation|\borg\b|account/.test(h)) return "Company";
+  if (/country|region|location/.test(h)) return "Country";
+  return "Ignore";
+}
+
+const FIELD_TO_KEY: Record<Exclude<FieldKey, "Ignore">, keyof SubscriberInput> = {
+  Email: "email",
+  "First name": "firstName",
+  "Last name": "lastName",
+  Company: "company",
+  Country: "country",
+};
 
 export default function ImportPage() {
+  const router = useRouter();
   const [step, setStep] = useState(0);
-  const [mapping, setMapping] = useState<Record<string, string>>(
-    Object.fromEntries(CSV_COLUMNS.map((c) => [c.name, c.mapTo])),
+  const [fileName, setFileName] = useState("");
+  const [pasted, setPasted] = useState("");
+  const [headers, setHeaders] = useState<string[]>([]);
+  const [rows, setRows] = useState<Record<string, string>[]>([]);
+  const [mapping, setMapping] = useState<Record<string, FieldKey>>({});
+  const [tagName, setTagName] = useState("");
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<{ created: number; updated: number } | null>(null);
+
+  function ingest(parsed: Papa.ParseResult<Record<string, string>>) {
+    const hs = (parsed.meta.fields ?? []).filter(Boolean);
+    const m: Record<string, FieldKey> = {};
+    for (const h of hs) m[h] = guessField(h);
+    setHeaders(hs);
+    setRows(parsed.data);
+    setMapping(m);
+  }
+
+  function onFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setFileName(file.name);
+    setError(null);
+    Papa.parse<Record<string, string>>(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: ingest,
+    });
+  }
+
+  function parsePasted() {
+    if (!pasted.trim()) return false;
+    const parsed = Papa.parse<Record<string, string>>(pasted.trim(), {
+      header: true,
+      skipEmptyLines: true,
+    });
+    ingest(parsed);
+    return (parsed.meta.fields ?? []).length > 0;
+  }
+
+  const emailHeader = useMemo(
+    () => headers.find((h) => mapping[h] === "Email"),
+    [headers, mapping],
   );
 
-  const mappedCount = Object.values(mapping).filter(
-    (v) => v !== "Ignore",
-  ).length;
+  const builtRows = useMemo<SubscriberInput[]>(() => {
+    if (!emailHeader) return [];
+    const out: SubscriberInput[] = [];
+    const seen = new Set<string>();
+    for (const row of rows) {
+      const email = (row[emailHeader] ?? "").trim().toLowerCase();
+      if (!email || seen.has(email)) continue;
+      seen.add(email);
+      const rec: SubscriberInput = { email };
+      for (const h of headers) {
+        const field = mapping[h];
+        if (field === "Ignore" || field === "Email") continue;
+        const val = (row[h] ?? "").trim();
+        if (val) rec[FIELD_TO_KEY[field]] = val;
+      }
+      out.push(rec);
+    }
+    return out;
+  }, [rows, headers, mapping, emailHeader]);
+
+  const mappedCount = Object.values(mapping).filter((v) => v !== "Ignore").length;
+
+  function next() {
+    setError(null);
+    if (step === 0) {
+      if (headers.length === 0 && !parsePasted()) {
+        setError("Upload a CSV or paste rows with a header line first.");
+        return;
+      }
+      if (headers.length === 0 && rows.length === 0) {
+        setError("No rows detected. Check your CSV has a header row.");
+        return;
+      }
+    }
+    if (step === 1 && !emailHeader) {
+      setError("Map one column to “Email” — it's required.");
+      return;
+    }
+    setStep((s) => Math.min(STEPS.length - 1, s + 1));
+  }
+
+  async function onImport() {
+    if (builtRows.length === 0) {
+      setError("Nothing to import.");
+      return;
+    }
+    setPending(true);
+    setError(null);
+    const res = await importSubscribersAction({
+      rows: builtRows,
+      tagName: tagName.trim() || null,
+      source: "CSV import",
+    });
+    setPending(false);
+    if (!res.ok) {
+      setError("Import failed. Please try again.");
+      return;
+    }
+    setResult({ created: res.created, updated: res.updated });
+  }
+
+  if (result) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          title="Import subscribers"
+          breadcrumb={
+            <Link
+              href="/audience/subscribers"
+              className="inline-flex items-center gap-1 text-sm text-muted transition-colors hover:text-ink"
+            >
+              <ChevronLeftIcon className="h-4 w-4" strokeWidth={2} />
+              Subscribers
+            </Link>
+          }
+        />
+        <Card className="flex flex-col items-center gap-3 p-10 text-center">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 ring-1 ring-inset ring-emerald-600/15">
+            <CheckCircleIcon className="h-7 w-7" />
+          </span>
+          <h2 className="text-lg font-semibold text-ink">Import complete</h2>
+          <p className="text-sm text-muted">
+            {result.created} added · {result.updated} updated
+            {tagName.trim() ? ` · tagged “${tagName.trim()}”` : ""}
+          </p>
+          <Button onClick={() => router.push("/audience/subscribers")}>
+            View subscribers
+          </Button>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -117,18 +267,30 @@ export default function ImportPage() {
                 <ArrowUpTrayIcon className="h-5 w-5" strokeWidth={1.75} />
               </span>
               <span className="text-sm font-medium text-ink">
-                Drop a CSV or click to upload
+                {fileName || "Drop a CSV or click to upload"}
               </span>
               <span className="text-xs text-faint">or paste below</span>
-              <input type="file" accept=".csv,text/csv" className="hidden" />
+              <input
+                type="file"
+                accept=".csv,text/csv"
+                className="hidden"
+                onChange={onFile}
+              />
             </label>
 
             <Textarea
+              value={pasted}
+              onChange={(e) => setPasted(e.target.value)}
               placeholder={
                 "email,first_name,company,country\nada@example.com,Ada,Analytical Engines,United Kingdom"
               }
               className="min-h-[120px] font-mono text-[13px]"
             />
+            {headers.length > 0 && (
+              <p className="text-xs text-emerald-600">
+                Detected {headers.length} columns · {rows.length} rows.
+              </p>
+            )}
           </div>
         )}
 
@@ -136,8 +298,8 @@ export default function ImportPage() {
         {step === 1 && (
           <div className="space-y-4">
             <p className="text-sm text-muted">
-              We detected {CSV_COLUMNS.length} columns. Match each to a
-              subscriber field.
+              We detected {headers.length} columns. Match each to a subscriber
+              field. <span className="text-ink">Email</span> is required.
             </p>
             <div className="overflow-hidden rounded-lg border border-line">
               <div className="grid grid-cols-2 gap-3 border-b border-line bg-canvas px-3 py-2 text-xs font-medium uppercase tracking-wide text-faint">
@@ -145,20 +307,20 @@ export default function ImportPage() {
                 <span>Maps to</span>
               </div>
               <div className="divide-y divide-line/70">
-                {CSV_COLUMNS.map((col) => (
+                {headers.map((h) => (
                   <div
-                    key={col.name}
+                    key={h}
                     className="grid grid-cols-2 items-center gap-3 px-3 py-2.5"
                   >
                     <span className="truncate font-mono text-[13px] text-muted">
-                      {col.name}
+                      {h}
                     </span>
                     <Select
-                      value={mapping[col.name]}
+                      value={mapping[h]}
                       onChange={(e) =>
                         setMapping((m) => ({
                           ...m,
-                          [col.name]: e.target.value,
+                          [h]: e.target.value as FieldKey,
                         }))
                       }
                     >
@@ -172,21 +334,36 @@ export default function ImportPage() {
                 ))}
               </div>
             </div>
+            <Field
+              label="Add a tag to everyone imported (optional)"
+              hint="Created automatically if it doesn't exist."
+            >
+              <Input
+                value={tagName}
+                onChange={(e) => setTagName(e.target.value)}
+                placeholder="e.g. Newsletter"
+              />
+            </Field>
           </div>
         )}
 
         {/* Step 2 — Review */}
         {step === 2 && (
           <div className="space-y-1">
-            <Row k="Contacts ready" v="412 contacts" />
+            <Row k="Contacts ready" v={`${builtRows.length} contacts`} />
             <Row k="Fields mapped" v={`${mappedCount} fields`} />
             <Row k="Duplicates" v="Skipped (matched by email)" />
-            <Row k="Add to" v="Newsletter" />
+            <Row k="Add tag" v={tagName.trim() || "None"} />
+            {error && <p className="pt-2 text-sm text-rose-600">{error}</p>}
             <p className="pt-3 text-xs leading-relaxed text-faint">
-              New subscribers receive a single confirmation email. Existing
-              contacts are updated in place — none are duplicated.
+              Existing contacts are matched by email and updated in place — none
+              are duplicated.
             </p>
           </div>
+        )}
+
+        {error && step !== 2 && (
+          <p className="mt-4 text-sm text-rose-600">{error}</p>
         )}
 
         {/* Nav */}
@@ -194,20 +371,22 @@ export default function ImportPage() {
           <Button
             variant="ghost"
             onClick={() => setStep((s) => Math.max(0, s - 1))}
-            disabled={step === 0}
+            disabled={step === 0 || pending}
           >
             <ArrowLeftIcon className="h-4 w-4" strokeWidth={2} />
             Back
           </Button>
           {step < STEPS.length - 1 ? (
-            <Button onClick={() => setStep((s) => s + 1)}>
+            <Button onClick={next}>
               Continue
               <ArrowRightIcon className="h-4 w-4" strokeWidth={2} />
             </Button>
           ) : (
-            <Button>
+            <Button onClick={onImport} disabled={pending || builtRows.length === 0}>
               <RocketLaunchIcon className="h-4 w-4" strokeWidth={2} />
-              Import 412 subscribers
+              {pending
+                ? "Importing…"
+                : `Import ${builtRows.length} subscriber${builtRows.length === 1 ? "" : "s"}`}
             </Button>
           )}
         </div>

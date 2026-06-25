@@ -1,14 +1,16 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import {
-  EyeIcon,
-  PencilSquareIcon,
+  RocketLaunchIcon,
+  TrashIcon,
   DocumentDuplicateIcon,
 } from "@heroicons/react/24/outline";
 import { Badge, Card, EmptyState, SearchInput, cn } from "@/components/ui";
 import { formatDate } from "@/lib/utils";
 import type { Template } from "@/data/templates";
+import { duplicateTemplateAction, deleteTemplateAction } from "./actions";
 
 export function TemplatesGallery({
   templates,
@@ -17,8 +19,19 @@ export function TemplatesGallery({
   templates: Template[];
   categories: string[];
 }) {
+  const router = useRouter();
   const [active, setActive] = React.useState("All");
   const [query, setQuery] = React.useState("");
+
+  async function onDuplicate(id: string) {
+    await duplicateTemplateAction(id);
+    router.refresh();
+  }
+  async function onDelete(id: string, name: string) {
+    if (!confirm(`Delete the template “${name}”?`)) return;
+    await deleteTemplateAction(id);
+    router.refresh();
+  }
 
   const filtered = React.useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -89,9 +102,23 @@ export function TemplatesGallery({
                 </span>
                 {/* Hover actions */}
                 <div className="absolute inset-0 flex items-center justify-center gap-2 bg-ink/30 opacity-0 backdrop-blur-[1px] transition-opacity group-hover:opacity-100">
-                  <ThumbAction icon={EyeIcon} label="Preview" />
-                  <ThumbAction icon={PencilSquareIcon} label="Edit" />
-                  <ThumbAction icon={DocumentDuplicateIcon} label="Duplicate" />
+                  <ThumbAction
+                    icon={RocketLaunchIcon}
+                    label="Use in campaign"
+                    onClick={() =>
+                      router.push(`/campaigns/new?template=${t.id}`)
+                    }
+                  />
+                  <ThumbAction
+                    icon={DocumentDuplicateIcon}
+                    label="Duplicate"
+                    onClick={() => onDuplicate(t.id)}
+                  />
+                  <ThumbAction
+                    icon={TrashIcon}
+                    label="Delete"
+                    onClick={() => onDelete(t.id, t.name)}
+                  />
                 </div>
               </div>
               {/* Body */}
@@ -119,14 +146,17 @@ export function TemplatesGallery({
 function ThumbAction({
   icon: Icon,
   label,
+  onClick,
 }: {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
+  onClick?: () => void;
 }) {
   return (
     <button
       type="button"
       title={label}
+      onClick={onClick}
       className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/90 text-ink shadow-sm transition-transform hover:scale-105"
     >
       <Icon className="h-4 w-4" />

@@ -1,13 +1,10 @@
 import {
-  PlusIcon,
   CodeBracketIcon,
   WindowIcon,
   DocumentTextIcon,
-  EllipsisHorizontalIcon,
 } from "@heroicons/react/24/outline";
 import {
   Badge,
-  Button,
   Card,
   IconTile,
   PageHeader,
@@ -17,7 +14,13 @@ import {
   type IconType,
 } from "@/components/ui";
 import { compactNumber, formatNumber, relativeTime } from "@/lib/utils";
-import { forms, type FormType } from "@/data/forms";
+import { requireUser } from "@/server/auth-helpers";
+import { listForms } from "@/server/forms";
+import { type FormType } from "@/data/forms";
+import { CreateFormButton } from "./CreateFormButton";
+import { FormRowMenu } from "./FormRowMenu";
+
+export const dynamic = "force-dynamic";
 
 const TYPE_META: Record<
   FormType,
@@ -28,7 +31,10 @@ const TYPE_META: Record<
   "Landing page": { icon: DocumentTextIcon, tone: "success" },
 };
 
-export default function FormsPage() {
+export default async function FormsPage() {
+  const user = await requireUser();
+  const forms = await listForms(user.id);
+
   const totalSubs = forms.reduce((s, f) => s + f.submissions, 0);
   const totalViews = forms.reduce((s, f) => s + f.views, 0);
   const avgConv = totalViews ? (totalSubs / totalViews) * 100 : 0;
@@ -38,12 +44,7 @@ export default function FormsPage() {
       <PageHeader
         title="Forms"
         subtitle="Signup forms, popups, and landing pages that grow your audience."
-        actions={
-          <Button size="sm">
-            <PlusIcon className="h-4 w-4" />
-            Create form
-          </Button>
-        }
+        actions={<CreateFormButton />}
       />
 
       <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -109,13 +110,7 @@ export default function FormsPage() {
                         {relativeTime(f.updatedAt)}
                       </td>
                       <td className="px-3 py-3 text-right">
-                        <button
-                          type="button"
-                          className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-faint opacity-0 transition-opacity hover:bg-subtle hover:text-ink group-hover:opacity-100"
-                          aria-label="More actions"
-                        >
-                          <EllipsisHorizontalIcon className="h-5 w-5" />
-                        </button>
+                        <FormRowMenu id={f.id} name={f.name} status={f.status} />
                       </td>
                     </tr>
                   );

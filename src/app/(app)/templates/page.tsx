@@ -1,20 +1,22 @@
-import { PlusIcon } from "@heroicons/react/24/outline";
-import { Button, PageHeader } from "@/components/ui";
-import { templates, templateCategories } from "@/data/templates";
+import { PageHeader } from "@/components/ui";
+import { requireUser } from "@/server/auth-helpers";
+import { listTemplates } from "@/server/templates";
+import { templateCategories } from "@/data/templates";
 import { TemplatesGallery } from "./TemplatesGallery";
+import { CreateTemplateButton } from "./CreateTemplateButton";
 
-export default function TemplatesPage() {
+export const dynamic = "force-dynamic";
+
+export default async function TemplatesPage() {
+  const user = await requireUser();
+  const templates = await listTemplates(user.id);
+
   return (
     <div className="space-y-6">
       <PageHeader
         title="Templates"
         subtitle="Reusable email designs for your campaigns and automations."
-        actions={
-          <Button size="sm">
-            <PlusIcon className="h-4 w-4" />
-            Create template
-          </Button>
-        }
+        actions={<CreateTemplateButton />}
       />
       <TemplatesGallery
         templates={templates}

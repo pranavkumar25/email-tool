@@ -1,12 +1,10 @@
 import {
-  PlusIcon,
   FunnelIcon,
   ArrowTrendingUpIcon,
   ArrowTrendingDownIcon,
 } from "@heroicons/react/24/outline";
 import {
   Badge,
-  Button,
   Card,
   Divider,
   EmptyState,
@@ -16,9 +14,17 @@ import {
   Tag,
 } from "@/components/ui";
 import { formatDate, formatNumber } from "@/lib/utils";
-import { segments } from "@/data/segments";
+import { requireUser } from "@/server/auth-helpers";
+import { listSegments } from "@/server/audience";
+import { CreateSegmentButton } from "./CreateSegmentButton";
+import { DeleteSegmentButton } from "./DeleteSegmentButton";
 
-export default function SegmentsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function SegmentsPage() {
+  const user = await requireUser();
+  const segments = await listSegments(user.id);
+
   const largest = segments.reduce(
     (best, s) => (s.count > best.count ? s : best),
     segments[0],
@@ -33,12 +39,7 @@ export default function SegmentsPage() {
       <PageHeader
         title="Segments"
         subtitle="Dynamic groups that update automatically."
-        actions={
-          <Button size="sm">
-            <PlusIcon className="h-4 w-4" strokeWidth={2.25} />
-            Create segment
-          </Button>
-        }
+        actions={<CreateSegmentButton />}
       />
 
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -56,12 +57,7 @@ export default function SegmentsPage() {
           icon={FunnelIcon}
           title="No segments yet"
           description="Create a dynamic segment to group subscribers by behavior, tags, or fields — it updates itself as people qualify."
-          action={
-            <Button>
-              <PlusIcon className="h-4 w-4" strokeWidth={2.25} />
-              Create segment
-            </Button>
-          }
+          action={<CreateSegmentButton variant="empty" />}
         />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -70,10 +66,11 @@ export default function SegmentsPage() {
             return (
               <Card
                 key={seg.id}
-                className="flex flex-col p-5 transition-colors hover:border-line-strong"
+                className="group flex flex-col p-5 transition-colors hover:border-line-strong"
               >
                 <div className="flex items-start justify-between gap-3">
                   <IconTile icon={FunnelIcon} tone="accent" />
+                  <div className="flex items-center gap-1">
                   <Badge tone={up ? "success" : "danger"}>
                     {up ? (
                       <ArrowTrendingUpIcon
@@ -88,6 +85,8 @@ export default function SegmentsPage() {
                     )}
                     {Math.abs(seg.growthPct)}%
                   </Badge>
+                  <DeleteSegmentButton id={seg.id} name={seg.name} />
+                  </div>
                 </div>
 
                 <div className="mt-4">
