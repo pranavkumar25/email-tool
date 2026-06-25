@@ -130,10 +130,12 @@ function sendOne_(cfg, step, row, col, header) {
   if (base) {
     html = wrapLinks_(html, base, cfg.campaignId, cid);
     html += openPixel_(base, cfg.campaignId, cid, step.stepOrder);
+    html += unsubscribeFooter_(base, cfg.campaignId, cid, cfg.unsubscribeHtml);
+  } else if (cfg.unsubscribeHtml) {
+    html += String(cfg.unsubscribeHtml);
   }
-  if (base) html += unsubscribeFooter_(base, cfg.campaignId, cid, cfg.unsubscribeHtml);
-  else if (cfg.unsubscribeHtml) html += String(cfg.unsubscribeHtml);
 
+  var plain = stripHtml_(html);
   var options = { htmlBody: html };
   if (cfg.fromName) options.name = String(cfg.fromName);
   if (cfg.fromAlias) options.from = String(cfg.fromAlias); // must be a verified send-as
@@ -143,15 +145,24 @@ function sendOne_(cfg, step, row, col, header) {
   if (step.stepOrder > 0 && threadId) {
     var thread = GmailApp.getThreadById(String(threadId));
     if (thread) {
-      thread.reply(stripHtml_(html), options);
+      thread.reply(plain, options);
       return { threadId: String(threadId) };
     }
   }
 
-  GmailApp.sendEmail(email, subject, stripHtml_(html), options);
-  // Resolve the thread we just created so later steps can reply into it.
-  var found = GmailApp.search('to:' + email + ' newer_than:1d', 0, 1);
-  return { threadId: found && found.length ? found[0].getId() : '' };
+  // Initial send: send via a draft so Gmail hands us back the actual message —
+  // and therefore the thread id — deterministically. Searching for the thread
+  // right after sendEmail() is unreliable (the message often isn't indexed yet),
+  // which previously left threadId blank and broke reply/bounce detection.
+  var sentMsg = GmailApp.createDraft(email, subject, plain, options).send();
+  var newThreadId = '';
+  try {
+    newThreadId = sentMsg.getThread().getId();
+  } catch (e) {
+    var found = GmailApp.search('in:sent to:' + email + ' newer_than:1d', 0, 1);
+    newThreadId = found && found.length ? found[0].getId() : '';
+  }
+  return { threadId: newThreadId };
 }
 
 function advance_(sh, r, col, steps, currentStep, now) {
@@ -175,13 +186,26 @@ function checkReplies() {
   for (var r = 1; r < values.length; r++) {
     var row = values[r];
     var status = String(row[col.status] || '').toUpperCase();
-    var threadId = row[col.threadId];
-    if (!threadId || TERMINAL.indexOf(status) !== -1) continue;
+    if (TERMINAL.indexOf(status) !== -1 || status === 'QUEUED') continue;
 
-    var thread = GmailApp.getThreadById(String(threadId));
+    var contactEmail = String(row[col.email] || '').toLowerCase();
+    if (!contactEmail) continue;
+
+    var threadId = row[col.threadId];
+    var thread = threadId ? GmailApp.getThreadById(String(threadId)) : null;
+
+    // Recover a missing thread id (e.g. sent before this fix) by searching the
+    // user's sent mail, then backfill it so future runs are cheap.
+    if (!thread) {
+      var recovered = GmailApp.search('in:sent to:' + contactEmail, 0, 1);
+      if (recovered && recovered.length) {
+        thread = recovered[0];
+        setCell_(sh, r, col.threadId, thread.getId());
+      }
+    }
     if (!thread) continue;
+
     var msgs = thread.getMessages();
-    var contactEmail = String(row[col.email]).toLowerCase();
     var replied = false;
     var bounced = false;
     for (var m = 0; m < msgs.length; m++) {

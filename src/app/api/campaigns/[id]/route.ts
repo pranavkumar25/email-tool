@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { auth } from "@/auth";
-import { prisma } from "@/lib/db";
-import { getGoogleClientForUser } from "@/lib/google";
-import { updateConfigValue } from "@/lib/sheetSync";
+import { auth } from "@/server/auth";
+import { prisma } from "@/server/db";
+import { getGoogleClientForUser } from "@/server/google/client";
+import { updateConfigValue } from "@/server/google/sheetSync";
 
 type Ctx = { params: Promise<{ id: string }> };
 

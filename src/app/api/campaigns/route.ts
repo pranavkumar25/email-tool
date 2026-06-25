@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { Prisma } from "@prisma/client";
-import { auth } from "@/auth";
-import { prisma } from "@/lib/db";
+import { auth } from "@/server/auth";
+import { prisma } from "@/server/db";
 
 const stepSchema = z.object({
   delayDays: z.number().int().min(0),

@@ -2,13 +2,118 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Gmail Campaigns — light, enterprise-grade email-platform theme.
+ * Soft gray canvas, white surfaces, a single indigo accent. Distinctions are
+ * carried by elevation, weight, and accent — never by color alone.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #0a0a0a;
+  --background: #f5f6f8;
+  --foreground: #16181d;
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+@layer base {
+  html {
+    color-scheme: light;
+  }
+
+  body {
+    color: var(--foreground);
+    /* Soft canvas with a barely-there accent wash at the top. */
+    background-color: var(--background);
+    background-image: radial-gradient(
+      48rem 30rem at 100% -10%,
+      rgba(99, 102, 241, 0.06),
+      transparent 60%
+    );
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Tabular figures so numbers line up in tables / stats. */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Consistent, visible accent focus ring on all interactive elements. */
+  :focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px #ffffff,
+      0 0 0 4px rgba(79, 70, 229, 0.55);
+    border-radius: 8px;
+  }
+
+  ::selection {
+    background: rgba(99, 102, 241, 0.22);
+    color: #16181d;
+  }
+}
+
+@layer components {
+  /* Rich-text / email body preview styling (composer + previews). */
+  .prose-email {
+    @apply text-sm leading-relaxed text-muted;
+  }
+  .prose-email a {
+    @apply text-accent-600 underline underline-offset-2;
+  }
+  .prose-email ul {
+    @apply my-2 list-disc pl-5;
+  }
+  .prose-email p {
+    @apply my-2;
+  }
+
+  /* Shimmering skeleton placeholder for loading states. */
+  .skeleton {
+    @apply relative overflow-hidden rounded-lg bg-subtle;
+  }
+  .skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.75),
+      transparent
+    );
+    animation: shimmer 1.6s infinite;
+  }
+}
+
+/* Honor reduced-motion preferences. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .skeleton::after {
+    animation: none;
+  }
+}
+
+/* Thin, light scrollbars to match the minimal aesthetic. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #d3d5db transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: #d3d5db;
+  border-radius: 9999px;
+  border: 2px solid #f5f6f8;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: #b9bcc5;
 }

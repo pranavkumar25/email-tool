@@ -18,6 +18,12 @@ model User {
   accounts      Account[]
   sessions      Session[]
   campaigns     Campaign[]
+  subscribers   Subscriber[]
+  tags          Tag[]
+  segments      Segment[]
+  templates     Template[]
+  automations   Automation[]
+  forms         Form[]
   createdAt     DateTime   @default(now())
 }
 
@@ -161,4 +167,158 @@ model Event {
 
   @@index([campaignId, type])
   @@index([contactId])
+}
+
+// ─── Audience ─────────────────────────────────────────────────────────────
+enum SubscriberStatus {
+  SUBSCRIBED
+  UNSUBSCRIBED
+  PENDING
+  BOUNCED
+  CLEANED
+}
+
+model Subscriber {
+  id             String           @id @default(cuid())
+  userId         String
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  email          String
+  firstName      String?
+  lastName       String?
+  company        String?
+  country        String?
+  status         SubscriberStatus @default(SUBSCRIBED)
+  rating         Int              @default(0) // 1–5 engagement score
+  opens          Int              @default(0)
+  clicks         Int              @default(0)
+  source         String           @default("Manual")
+  tags           Tag[]            @relation("SubscriberTags")
+  subscribedAt   DateTime         @default(now())
+  lastActivityAt DateTime         @default(now())
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@unique([userId, email])
+  @@index([userId, status])
+}
+
+model Tag {
+  id          String       @id @default(cuid())
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  tone        String       @default("neutral") // UI Badge/IconTile tone
+  subscribers Subscriber[] @relation("SubscriberTags")
+  createdAt   DateTime     @default(now())
+
+  @@unique([userId, name])
+}
+
+enum SegmentMatch {
+  ALL
+  ANY
+}
+
+model Segment {
+  id          String       @id @default(cuid())
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  description String       @default("")
+  match       SegmentMatch @default(ALL)
+  conditions  Json? // SegmentCondition[]: { field, op, value }
+  growthPct   Float        @default(0)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+// ─── Content ──────────────────────────────────────────────────────────────
+model Template {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  category    String   @default("Newsletter")
+  description String   @default("")
+  subject     String   @default("")
+  bodyHtml    String   @default("") @db.Text
+  gradient    String   @default("from-indigo-500 to-violet-500") // thumbnail style
+  usageCount  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ─── Automations ──────────────────────────────────────────────────────────
+enum AutomationStatus {
+  LIVE
+  DRAFT
+  PAUSED
+}
+
+model Automation {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  status    AutomationStatus @default(DRAFT)
+  trigger   String           @default("Subscriber joins")
+  entered   Int              @default(0)
+  active    Int              @default(0)
+  completed Int              @default(0)
+  openRate  Float            @default(0)
+  clickRate Float            @default(0)
+  steps     AutomationStep[]
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+}
+
+model AutomationStep {
+  id           String     @id @default(cuid())
+  automationId String
+  automation   Automation @relation(fields: [automationId], references: [id], onDelete: Cascade)
+  stepOrder    Int
+  type         String // trigger | email | delay | condition | action
+  title        String
+  detail       String     @default("")
+
+  @@unique([automationId, stepOrder])
+}
+
+// ─── Forms ────────────────────────────────────────────────────────────────
+enum FormType {
+  EMBEDDED
+  POPUP
+  LANDING
+}
+
+enum FormStatus {
+  LIVE
+  DRAFT
+  PAUSED
+}
+
+model Form {
+  id          String           @id @default(cuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  type        FormType         @default(EMBEDDED)
+  status      FormStatus       @default(DRAFT)
+  audience    String           @default("") // tag applied to new subscribers
+  views       Int              @default(0)
+  submissions Int              @default(0)
+  records     FormSubmission[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+model FormSubmission {
+  id        String   @id @default(cuid())
+  formId    String
+  form      Form     @relation(fields: [formId], references: [id], onDelete: Cascade)
+  email     String
+  data      Json?
+  createdAt DateTime @default(now())
+
+  @@index([formId])
 }

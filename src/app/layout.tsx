@@ -1,17 +1,25 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Gmail Campaigns",
-  description: "Send email campaigns and follow-up sequences from your own Gmail.",
+  description:
+    "Send personalized email campaigns and follow-up sequences from your own Gmail.",
 };
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-neutral-50 text-neutral-900 antialiased">
+    <html lang="en" className={inter.variable}>
+      <body className="min-h-dvh bg-canvas font-sans text-ink antialiased">
         {children}
       </body>
     </html>

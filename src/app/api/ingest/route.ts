@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { verifyIngestSecret } from "@/lib/crypto";
-import { recordIngestEvent } from "@/lib/events";
+import { verifyIngestSecret } from "@/server/crypto";
+import { recordIngestEvent } from "@/server/events";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

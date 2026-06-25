@@ -1,6 +1,6 @@
-import { prisma } from "@/lib/db";
-import { getGoogleClientForUser } from "@/lib/google";
-import { updateContactStatus } from "@/lib/sheetSync";
+import { prisma } from "@/server/db";
+import { getGoogleClientForUser } from "@/server/google/client";
+import { updateContactStatus } from "@/server/google/sheetSync";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

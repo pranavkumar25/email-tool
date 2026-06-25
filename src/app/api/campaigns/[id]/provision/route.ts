@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
-import { prisma } from "@/lib/db";
-import { getGoogleClientForUser } from "@/lib/google";
-import { provisionCampaign } from "@/lib/provision";
+import { auth } from "@/server/auth";
+import { prisma } from "@/server/db";
+import { getGoogleClientForUser } from "@/server/google/client";
+import { provisionCampaign } from "@/server/google/provision";
 
 type Ctx = { params: Promise<{ id: string }> };
 

@@ -17,6 +17,6 @@ export const APPS_SCRIPT_CODE = ${JSON.stringify(code)};
 export const APPS_SCRIPT_MANIFEST = ${JSON.stringify(manifest)};
 `;
 
-mkdirSync(join(root, "src/lib"), { recursive: true });
-writeFileSync(join(root, "src/lib/appsScriptSource.ts"), out);
-console.log("Wrote src/lib/appsScriptSource.ts");
+mkdirSync(join(root, "src/server/google"), { recursive: true });
+writeFileSync(join(root, "src/server/google/appsScriptSource.ts"), out);
+console.log("Wrote src/server/google/appsScriptSource.ts");

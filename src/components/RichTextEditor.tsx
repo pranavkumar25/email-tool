@@ -46,8 +46,8 @@ export function RichTextEditor({
   }
 
   return (
-    <div className="rounded-lg border border-neutral-300">
-      <div className="flex flex-wrap items-center gap-1 border-b border-neutral-200 p-2">
+    <div className="overflow-hidden rounded-lg border border-line bg-elevated transition-colors focus-within:border-accent-500">
+      <div className="flex flex-wrap items-center gap-1 border-b border-line bg-canvas p-2">
         <Btn onClick={() => cmd("bold")} title="Bold">
           <b>B</b>
         </Btn>
@@ -65,13 +65,13 @@ export function RichTextEditor({
         </Btn>
         {mergeFields.length > 0 && (
           <>
-            <span className="mx-1 h-4 w-px bg-neutral-200" />
+            <span className="mx-1 h-4 w-px bg-line" />
             {mergeFields.map((f) => (
               <button
                 key={f}
                 type="button"
                 onClick={() => insertTag(f)}
-                className="rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-xs hover:bg-neutral-200"
+                className="rounded bg-accent-soft px-1.5 py-0.5 font-mono text-xs text-accent-600 ring-1 ring-inset ring-accent-500/20 hover:bg-accent-500/20"
               >{`{{${f}}}`}</button>
             ))}
           </>
@@ -83,7 +83,7 @@ export function RichTextEditor({
         onInput={emit}
         data-placeholder={placeholder}
         suppressContentEditableWarning
-        className="min-h-[200px] px-3 py-2 text-sm leading-relaxed focus:outline-none [&:empty:before]:text-neutral-400 [&:empty:before]:content-[attr(data-placeholder)]"
+        className="prose-email min-h-[200px] bg-surface px-3 py-2 text-ink focus:outline-none [&:empty:before]:text-faint [&:empty:before]:content-[attr(data-placeholder)]"
       />
     </div>
   );
@@ -103,7 +103,7 @@ function Btn({
       type="button"
       title={title}
       onClick={onClick}
-      className="rounded px-2 py-1 text-sm hover:bg-neutral-100"
+      className="rounded px-2 py-1 text-sm text-muted transition-colors hover:bg-subtle hover:text-ink"
     >
       {children}
     </button>
