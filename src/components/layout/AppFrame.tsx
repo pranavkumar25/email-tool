@@ -18,10 +18,12 @@ import {
   Bars3Icon,
   XMarkIcon,
   ArrowRightStartOnRectangleIcon,
+  ShieldCheckIcon,
+  EyeIcon,
 } from "@heroicons/react/24/outline";
 import { cn } from "@/lib/utils";
 import type { IconType } from "@/components/ui";
-import { signOutAction } from "@/server/actions";
+import { signOutAction, stopImpersonationAction } from "@/server/actions";
 import { Brand } from "./Brand";
 
 type NavItem = { label: string; href: string; icon: IconType; exact?: boolean };
@@ -61,16 +63,23 @@ function isActive(pathname: string, href: string, exact?: boolean) {
   return pathname === href || pathname.startsWith(href + "/");
 }
 
+const ADMIN_SECTION: NavSection = {
+  heading: "System",
+  items: [{ label: "Admin", href: "/admin", icon: ShieldCheckIcon }],
+};
+
 function NavTree({
+  sections,
   pathname,
   onNavigate,
 }: {
+  sections: NavSection[];
   pathname: string;
   onNavigate?: () => void;
 }) {
   return (
     <nav className="flex flex-col gap-5">
-      {NAV.map((section, i) => (
+      {sections.map((section, i) => (
         <div key={i} className="flex flex-col gap-0.5">
           {section.heading && (
             <div className="eyebrow px-3 pb-1.5">{section.heading}</div>
@@ -175,13 +184,18 @@ function CreateButton({ onNavigate }: { onNavigate?: () => void }) {
 
 export function AppFrame({
   email,
+  isAdmin = false,
+  viewingAs = null,
   children,
 }: {
   email: string | null;
+  isAdmin?: boolean;
+  viewingAs?: string | null;
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const sections = isAdmin ? [...NAV, ADMIN_SECTION] : NAV;
 
   return (
     <div className="flex min-h-dvh">
@@ -190,7 +204,7 @@ export function AppFrame({
         <BrandLink />
         <CreateButton />
         <div className="-mr-1 flex-1 overflow-y-auto pr-1">
-          <NavTree pathname={pathname} />
+          <NavTree sections={sections} pathname={pathname} />
         </div>
         <UserFooter email={email} />
       </aside>
@@ -219,7 +233,11 @@ export function AppFrame({
             </div>
             <CreateButton onNavigate={() => setOpen(false)} />
             <div className="-mr-1 flex-1 overflow-y-auto pr-1">
-              <NavTree pathname={pathname} onNavigate={() => setOpen(false)} />
+              <NavTree
+                sections={sections}
+                pathname={pathname}
+                onNavigate={() => setOpen(false)}
+              />
             </div>
             <UserFooter email={email} />
           </aside>
@@ -228,6 +246,28 @@ export function AppFrame({
 
       {/* Main column */}
       <div className="flex min-w-0 flex-1 flex-col">
+        {/* Admin "view as" bar — present on every page while impersonating. */}
+        {viewingAs && (
+          <div className="sticky top-0 z-40 flex items-center gap-3 border-b border-signal-200 bg-signal-50 px-4 py-2 md:px-8">
+            <EyeIcon className="h-4 w-4 shrink-0 text-signal-600" strokeWidth={2} />
+            <p className="min-w-0 flex-1 truncate text-[13px] text-ink">
+              Viewing{" "}
+              <span className="font-mono font-medium text-signal-600">
+                {viewingAs}
+              </span>{" "}
+              <span className="text-muted">as admin</span>
+            </p>
+            <form action={stopImpersonationAction}>
+              <button
+                type="submit"
+                className="rounded-lg border border-signal-200 bg-surface px-2.5 py-1 text-[13px] font-medium text-ink transition-colors hover:bg-signal-50/60"
+              >
+                Stop viewing
+              </button>
+            </form>
+          </div>
+        )}
+
         {/* Mobile top bar (desktop is content-first, no chrome) */}
         <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-line bg-surface/85 px-4 backdrop-blur-xl md:hidden">
           <button

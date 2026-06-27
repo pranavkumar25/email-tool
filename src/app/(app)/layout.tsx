@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getSession } from "@/server/auth";
+import { getAuthContext } from "@/server/auth-helpers";
 import { AppFrame } from "@/components/layout/AppFrame";
 
 /**
@@ -12,8 +12,17 @@ export default async function AppLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getSession();
-  if (!session?.user) redirect("/");
+  const { realUser, effectiveUser, isAdmin, isImpersonating } =
+    await getAuthContext();
+  if (!realUser?.id) redirect("/");
 
-  return <AppFrame email={session.user.email ?? null}>{children}</AppFrame>;
+  return (
+    <AppFrame
+      email={realUser.email ?? null}
+      isAdmin={isAdmin}
+      viewingAs={isImpersonating ? effectiveUser?.email ?? null : null}
+    >
+      {children}
+    </AppFrame>
+  );
 }
