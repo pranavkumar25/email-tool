@@ -2,26 +2,26 @@ import { redirect } from "next/navigation";
 import { ArrowRightIcon, StarIcon } from "@heroicons/react/24/outline";
 import { getSession, signIn } from "@/server/auth";
 import { buttonClass } from "@/components/ui";
-import { Brand } from "@/components/layout/Brand";
+import { Brand, Logo } from "@/components/layout/Brand";
 
 export default async function Home() {
   const session = await getSession();
   if (session?.user) redirect("/dashboard");
 
   return (
-    <main className="grid min-h-dvh lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
+    <main className="flex min-h-dvh flex-col lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
       {/* ── Sign-in ───────────────────────────────────────────── */}
-      <div className="flex items-center justify-center px-6 py-16 sm:px-10">
+      <div className="flex min-w-0 items-center justify-center px-6 py-16 sm:px-10">
         <div className="w-full max-w-sm">
-          <Brand markSize={32} wordmarkClassName="text-base" />
+          <Brand height={28} />
 
           <p className="eyebrow mt-12">Mail-merge &amp; sequencing</p>
-          <h1 className="mt-3 text-[34px] font-semibold leading-[1.05] tracking-[-0.03em] text-ink">
+          <h1 className="mt-3 text-[32px] font-semibold leading-[1.05] tracking-[-0.03em] text-ink sm:text-[40px] lg:text-[46px] lg:leading-[1.02]">
             Earn a row in
             <br />
             the inbox.
           </h1>
-          <p className="mt-4 text-[15px] leading-relaxed text-muted">
+          <p className="mt-4 text-base leading-relaxed text-muted">
             Send personalized campaigns and follow-up sequences from your own
             Gmail — on your real deliverability and quota, never a third-party
             relay.
@@ -43,7 +43,7 @@ export default async function Home() {
             </button>
           </form>
 
-          <p className="mt-5 font-mono text-[11px] leading-relaxed text-faint">
+          <p className="mt-5 text-[13px] leading-relaxed text-faint">
             Continuing creates a campaign Sheet in your Drive. Gmail sending is
             authorized once, separately, from inside that Sheet.
           </p>
@@ -51,10 +51,10 @@ export default async function Home() {
       </div>
 
       {/* ── The thesis: a personal note, landing as a real inbox row ── */}
-      <div className="relative hidden flex-col justify-center overflow-hidden bg-[#0e5139] p-12 lg:flex">
-        {/* ambient pine light + faint grid */}
+      <div className="relative hidden min-w-0 flex-col justify-center overflow-hidden bg-ink p-12 lg:flex">
+        {/* ambient blue + red light, the two action colors on black */}
         <div
-          className="pointer-events-none absolute -right-32 -top-24 h-[28rem] w-[28rem] rounded-full bg-accent-400/25 blur-3xl"
+          className="pointer-events-none absolute -right-32 -top-24 h-[28rem] w-[28rem] rounded-full bg-accent-500/25 blur-3xl"
           aria-hidden
         />
         <div
@@ -62,7 +62,7 @@ export default async function Home() {
           aria-hidden
         />
         <div
-          className="pointer-events-none absolute inset-0 opacity-[0.06]"
+          className="pointer-events-none absolute inset-0 opacity-[0.05]"
           aria-hidden
           style={{
             backgroundImage:
@@ -72,13 +72,15 @@ export default async function Home() {
         />
 
         <div className="relative mx-auto w-full max-w-md">
-          <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-accent-200">
+          <Logo height={22} className="text-white/90" />
+
+          <p className="mt-8 text-[11px] font-semibold uppercase tracking-[0.18em] text-accent-300">
             Primary · 9:41 AM
           </p>
 
           <InboxMock />
 
-          <p className="mt-7 max-w-sm text-[15px] leading-relaxed text-accent-50/90">
+          <p className="mt-7 max-w-sm text-base leading-relaxed text-white/70">
             Sent from your Gmail. It lands like a note from a person — because it
             is one. Merge fields fill in, follow-ups thread, opens and replies
             come back to you.
@@ -100,14 +102,14 @@ function InboxMock() {
   return (
     <div className="mt-4 overflow-hidden rounded-2xl bg-surface shadow-pop ring-1 ring-black/5">
       <div className="flex items-center justify-between border-b border-line px-4 py-2.5">
-        <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-faint">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-faint">
           Inbox
         </span>
-        <span className="font-mono text-[11px] text-faint">3 unread</span>
+        <span className="text-[11px] font-medium text-faint">3 unread</span>
       </div>
 
       {/* The earned row — your personal email, unread, starred, at the top. */}
-      <div className="relative flex gap-3 bg-accent-50/60 px-4 py-3.5">
+      <div className="relative flex gap-3 bg-accent-50/70 px-4 py-3.5">
         <span
           className="absolute inset-y-0 left-0 w-[3px] bg-accent-600"
           aria-hidden
@@ -116,7 +118,7 @@ function InboxMock() {
           className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-signal-500"
           aria-hidden
         />
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-100 font-mono text-xs font-semibold text-accent-700">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-100 text-xs font-semibold text-accent-700">
           JL
         </span>
         <div className="min-w-0 flex-1">
@@ -124,15 +126,13 @@ function InboxMock() {
             <span className="truncate text-sm font-semibold text-ink">
               Jordan Lee
             </span>
-            <span className="shrink-0 font-mono text-[11px] text-faint">
+            <span className="shrink-0 text-[11px] font-medium text-faint">
               9:41 AM
             </span>
           </div>
           <div className="truncate text-sm font-medium text-ink">
             Quick question,{" "}
-            <span className="rounded bg-signal-100 px-1 text-signal-600 decoration-signal-400 underline-offset-2">
-              Ada
-            </span>
+            <span className="rounded bg-accent px-1 text-white">Ada</span>
           </div>
           <div className="truncate text-[13px] text-muted">
             Saw you just shipped the new docs — wanted to ask how you…
@@ -158,13 +158,13 @@ function InboxMock() {
           className="flex gap-3 border-t border-line/70 px-4 py-3"
         >
           <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-transparent" aria-hidden />
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-subtle font-mono text-xs font-medium text-faint">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-subtle text-xs font-medium text-faint">
             {r.from[0]}
           </span>
           <div className="min-w-0 flex-1">
             <div className="flex items-baseline justify-between gap-2">
               <span className="truncate text-sm text-muted">{r.from}</span>
-              <span className="shrink-0 font-mono text-[11px] text-faint">
+              <span className="shrink-0 text-[11px] font-medium text-faint">
                 {r.time}
               </span>
             </div>
@@ -180,7 +180,7 @@ function Feature({ title, sub }: { title: string; sub: string }) {
   return (
     <div>
       <div className="text-sm font-semibold text-white">{title}</div>
-      <div className="mt-0.5 font-mono text-[11px] text-accent-200">{sub}</div>
+      <div className="mt-0.5 text-[11px] font-medium text-white/55">{sub}</div>
     </div>
   );
 }

@@ -5,7 +5,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        // Human voice — headings & prose.
+        // One typeface — Inter carries every word (rsms.me InterVariable).
         sans: [
           "var(--font-sans)",
           "ui-sans-serif",
@@ -15,7 +15,7 @@ export default {
           "Roboto",
           "sans-serif",
         ],
-        // System/data voice — labels, addresses, merge tags, metrics.
+        // Reserved for genuinely technical micro-text (keys, merge tags, code).
         mono: [
           "var(--font-mono)",
           "ui-monospace",
@@ -26,57 +26,59 @@ export default {
         ],
       },
       /*
-       * inboxrow — a precision instrument for personal-feeling outreach.
-       * Deep pine carries the brand and the "delivered / go" semantics; a warm
-       * marigold spark is used sparingly for emphasis. Cool ink on faint sage
-       * paper, with pure-white surfaces. Distinctions are carried by elevation,
-       * weight, voice (sans vs. mono), and accent — never by color alone.
+       * InboxRow — one typeface, four colors.
+       * Black and white set the page; blue and red are reserved for action —
+       * CTAs, links and highlights, never decoration. Neutral surfaces and
+       * type are pure cool grays so the two accents stay loud.
        */
       colors: {
-        canvas: "#f1f3ef", // app background — faint sage paper
-        surface: "#ffffff", // cards, panels
-        elevated: "#ffffff", // popovers, inputs
-        subtle: "#e9ece7", // faint filled areas (chips, wells)
+        canvas: "#FBFCFD", // app background — a whisper off the pure-white surface
+        surface: "#FFFFFF", // cards, panels
+        elevated: "#FFFFFF", // popovers, inputs
+        subtle: "#F1F3F6", // faint filled areas (chips, wells)
         line: {
-          DEFAULT: "#e0e4dd", // default borders / dividers
-          strong: "#cad0c6", // emphasized borders, hover
+          DEFAULT: "#E7E9EE", // default borders / dividers
+          strong: "#D4D8E0", // emphasized borders, hover
         },
-        ink: "#15201c", // primary text — near-black, faint evergreen cast
-        muted: "#586059", // secondary text
-        faint: "#869089", // tertiary text / placeholders
-        // Brand + interaction accent (remapped indigo → pine, so every existing
-        // `accent-*` utility re-skins for free).
+        ink: "#050505", // primary text, icons & dark surfaces — brand black
+        muted: "#5B616E", // secondary text
+        faint: "#9AA0AD", // tertiary text / placeholders
+        // Blue CTA — primary actions, links, highlights. The interaction color.
         accent: {
-          50: "#e8f4ee",
-          100: "#cbe7d8",
-          200: "#9fd2ba",
-          300: "#69b594",
-          400: "#379472",
-          500: "#1c7a59",
-          600: "#136548",
-          700: "#0e5139",
-          DEFAULT: "#136548",
-          fg: "#ffffff",
-          soft: "#e8f4ee",
+          50: "#EAF1FF",
+          100: "#D4E2FF",
+          200: "#A8C4FF",
+          300: "#6E99FF",
+          400: "#3470FF",
+          500: "#004FFF",
+          600: "#0047E6",
+          700: "#003ACB",
+          DEFAULT: "#004FFF",
+          fg: "#FFFFFF",
+          soft: "#EAF1FF",
         },
-        // Warm spark — flags, highlights, the one place color gets loud.
+        // Red ACCENT — secondary CTAs, alerts, highlights. Used sparingly.
         signal: {
-          50: "#fdf3e3",
-          100: "#f9e3bf",
-          200: "#f2cd8a",
-          400: "#eaa53f",
-          500: "#dd8e22",
-          600: "#bd7212",
-          DEFAULT: "#dd8e22",
-          soft: "#fdf3e3",
+          50: "#FFECEC",
+          100: "#FFD8D9",
+          200: "#FFB4B5",
+          300: "#FE9092",
+          400: "#FD6A6D",
+          500: "#FB4B4E",
+          600: "#E62E31",
+          700: "#C21F22",
+          DEFAULT: "#FB4B4E",
+          fg: "#FFFFFF",
+          soft: "#FFECEC",
         },
       },
       boxShadow: {
-        xs: "0 1px 2px 0 rgb(21 32 28 / 0.05)",
-        card: "0 1px 2px 0 rgb(21 32 28 / 0.05), 0 1px 3px 0 rgb(21 32 28 / 0.04)",
-        pop: "0 16px 40px -12px rgb(21 32 28 / 0.22), 0 2px 6px -2px rgb(21 32 28 / 0.08)",
-        glow: "0 1px 2px 0 rgb(19 101 72 / 0.28), 0 8px 20px -8px rgb(19 101 72 / 0.4)",
-        "glow-sm": "0 1px 3px 0 rgb(19 101 72 / 0.3)",
+        xs: "0 1px 2px 0 rgb(5 5 5 / 0.06)",
+        card: "0 1px 2px 0 rgb(5 5 5 / 0.05), 0 1px 3px 0 rgb(5 5 5 / 0.04)",
+        pop: "0 16px 40px -12px rgb(5 5 5 / 0.18), 0 2px 6px -2px rgb(5 5 5 / 0.08)",
+        // Blue lift for the primary CTA — the one place a shadow carries color.
+        glow: "0 1px 2px 0 rgb(0 79 255 / 0.24), 0 10px 24px -10px rgb(0 79 255 / 0.45)",
+        "glow-sm": "0 1px 2px 0 rgb(0 79 255 / 0.28)",
       },
       keyframes: {
         "fade-in": {

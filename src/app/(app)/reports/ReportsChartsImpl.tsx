@@ -15,14 +15,20 @@ import {
   YAxis,
 } from "recharts";
 
-const AXIS = "#869089";
-const GRID = "#e3e7df";
-const LINE = "#e0e4dd";
+// Brand palette: blue carries your sends; black + red read the engagement,
+// distinguished by hue + dash pattern (never color alone).
+const BLUE = "#004FFF";
+const RED = "#FB4B4E";
+const INK = "#050505";
+const GRAY = "#9AA0AD";
+const AXIS = "#9AA0AD";
+const GRID = "#E7E9EE";
+const LINE = "#E7E9EE";
 const TOOLTIP = {
   borderRadius: 12,
-  border: "1px solid #e0e4dd",
+  border: "1px solid #E7E9EE",
   background: "#ffffff",
-  boxShadow: "0 16px 40px -12px rgb(21 32 28 / 0.22)",
+  boxShadow: "0 16px 40px -12px rgb(5 5 5 / 0.18)",
   fontSize: 12,
 } as const;
 
@@ -51,18 +57,18 @@ export function EngagementChart({
         <ComposedChart data={data} margin={{ top: 8, right: 12, bottom: 0, left: -18 }}>
           <defs>
             <linearGradient id="repSent" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#1c7a59" stopOpacity={0.2} />
-              <stop offset="100%" stopColor="#1c7a59" stopOpacity={0} />
+              <stop offset="0%" stopColor={BLUE} stopOpacity={0.2} />
+              <stop offset="100%" stopColor={BLUE} stopOpacity={0} />
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke={GRID} vertical={false} />
           <XAxis dataKey="date" tickFormatter={fmtDate} fontSize={11} tick={{ fill: AXIS }} tickLine={false} axisLine={{ stroke: LINE }} />
           <YAxis allowDecimals={false} fontSize={11} tick={{ fill: AXIS }} tickLine={false} axisLine={false} width={34} />
-          <Tooltip cursor={{ stroke: "#cad0c6" }} contentStyle={TOOLTIP} labelStyle={{ color: "#15201c", fontWeight: 600 }} itemStyle={{ color: "#586059" }} />
-          <Legend iconType="plainline" formatter={(v) => <span style={{ color: "#586059", fontSize: 12 }}>{v}</span>} />
-          <Area name="Sent" type="monotone" dataKey="sent" stroke="#136548" strokeWidth={2.25} fill="url(#repSent)" dot={false} activeDot={{ r: 3.5, fill: "#136548", strokeWidth: 0 }} />
-          <Line name="Opens" type="monotone" dataKey="opens" stroke="#dd8e22" strokeWidth={2} strokeDasharray="6 3" dot={false} activeDot={{ r: 3.5, fill: "#dd8e22", strokeWidth: 0 }} />
-          <Line name="Clicks" type="monotone" dataKey="clicks" stroke="#0284c7" strokeWidth={2} strokeDasharray="2 3" dot={false} activeDot={{ r: 3.5, fill: "#0284c7", strokeWidth: 0 }} />
+          <Tooltip cursor={{ stroke: "#D4D8E0" }} contentStyle={TOOLTIP} labelStyle={{ color: "#050505", fontWeight: 600 }} itemStyle={{ color: "#5B616E" }} />
+          <Legend iconType="plainline" formatter={(v) => <span style={{ color: "#5B616E", fontSize: 12 }}>{v}</span>} />
+          <Area name="Sent" type="monotone" dataKey="sent" stroke={BLUE} strokeWidth={2.25} fill="url(#repSent)" dot={false} activeDot={{ r: 3.5, fill: BLUE, strokeWidth: 0 }} />
+          <Line name="Opens" type="monotone" dataKey="opens" stroke={GRAY} strokeWidth={2} strokeDasharray="6 3" dot={false} activeDot={{ r: 3.5, fill: GRAY, strokeWidth: 0 }} />
+          <Line name="Clicks" type="monotone" dataKey="clicks" stroke={RED} strokeWidth={2} strokeDasharray="2 3" dot={false} activeDot={{ r: 3.5, fill: RED, strokeWidth: 0 }} />
         </ComposedChart>
       </ResponsiveContainer>
     </div>
@@ -83,10 +89,10 @@ export function AudienceGrowthChart({
           <CartesianGrid strokeDasharray="3 3" stroke={GRID} vertical={false} />
           <XAxis dataKey="date" tickFormatter={fmtDate} fontSize={11} tick={{ fill: AXIS }} tickLine={false} axisLine={{ stroke: LINE }} />
           <YAxis allowDecimals={false} fontSize={11} tick={{ fill: AXIS }} tickLine={false} axisLine={false} width={34} />
-          <Tooltip cursor={{ fill: "#e9ece7" }} contentStyle={TOOLTIP} labelStyle={{ color: "#15201c", fontWeight: 600 }} itemStyle={{ color: "#586059" }} />
-          <Legend formatter={(v) => <span style={{ color: "#586059", fontSize: 12 }}>{v}</span>} />
-          <Bar name="Subscribed" dataKey="gained" fill="#136548" radius={[3, 3, 0, 0]} maxBarSize={14} />
-          <Bar name="Unsubscribed" dataKey="lost" fill="#e11d48" radius={[3, 3, 0, 0]} maxBarSize={14} />
+          <Tooltip cursor={{ fill: "#F1F3F6" }} contentStyle={TOOLTIP} labelStyle={{ color: "#050505", fontWeight: 600 }} itemStyle={{ color: "#5B616E" }} />
+          <Legend formatter={(v) => <span style={{ color: "#5B616E", fontSize: 12 }}>{v}</span>} />
+          <Bar name="Subscribed" dataKey="gained" fill={BLUE} radius={[3, 3, 0, 0]} maxBarSize={14} />
+          <Bar name="Unsubscribed" dataKey="lost" fill={RED} radius={[3, 3, 0, 0]} maxBarSize={14} />
         </BarChart>
       </ResponsiveContainer>
     </div>

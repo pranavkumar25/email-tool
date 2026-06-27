@@ -1,0 +1,8 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="32" height="32" rx="8" fill="#050505"/>
+  <!-- the earned row, highlighted in brand blue -->
+  <rect x="8" y="10" width="16" height="3" rx="1.5" fill="#004FFF"/>
+  <!-- the quieter rows below -->
+  <rect x="8" y="15.5" width="16" height="2.5" rx="1.25" fill="#FDFFFC" fill-opacity="0.55"/>
+  <rect x="8" y="20.5" width="11" height="2.5" rx="1.25" fill="#FDFFFC" fill-opacity="0.55"/>
+</svg>

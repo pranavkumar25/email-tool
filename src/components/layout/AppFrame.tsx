@@ -129,9 +129,9 @@ function BrandLink() {
     <Link
       href="/dashboard"
       className="flex items-center px-1 outline-none"
-      aria-label="inboxrow — go to dashboard"
+      aria-label="InboxRow — go to dashboard"
     >
-      <Brand markSize={30} />
+      <Brand height={24} />
     </Link>
   );
 }
@@ -174,7 +174,7 @@ function CreateButton({ onNavigate }: { onNavigate?: () => void }) {
     <Link
       href="/campaigns/new"
       onClick={onNavigate}
-      className="flex h-9 items-center justify-center gap-2 rounded-lg bg-accent px-4 text-sm font-medium text-white shadow-glow-sm transition-colors hover:bg-accent-700"
+      className="flex h-9 items-center justify-center gap-2 rounded-lg bg-accent px-4 text-sm font-medium text-white shadow-glow-sm transition-colors hover:bg-accent-600"
     >
       <PlusIcon className="h-4 w-4" strokeWidth={2.25} />
       New campaign

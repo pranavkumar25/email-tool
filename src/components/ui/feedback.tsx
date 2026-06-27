@@ -21,13 +21,13 @@ export function Banner({
   const tones = {
     neutral: "border-line bg-surface",
     strong: "border-amber-300/60 bg-amber-50",
-    danger: "border-rose-300/60 bg-rose-50",
+    danger: "border-signal-300/60 bg-signal-50",
     success: "border-emerald-300/60 bg-emerald-50",
   };
   const iconTone = {
     neutral: "text-muted",
     strong: "text-amber-600",
-    danger: "text-rose-600",
+    danger: "text-signal-600",
     success: "text-emerald-600",
   };
   return (
