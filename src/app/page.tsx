@@ -1,32 +1,30 @@
 import { redirect } from "next/navigation";
-import { ArrowRightIcon, EnvelopeIcon } from "@heroicons/react/24/outline";
+import { ArrowRightIcon, StarIcon } from "@heroicons/react/24/outline";
 import { getSession, signIn } from "@/server/auth";
 import { buttonClass } from "@/components/ui";
+import { Brand } from "@/components/layout/Brand";
 
 export default async function Home() {
   const session = await getSession();
   if (session?.user) redirect("/dashboard");
 
   return (
-    <main className="grid min-h-dvh lg:grid-cols-2">
-      {/* Sign-in */}
-      <div className="flex items-center justify-center px-6 py-16">
+    <main className="grid min-h-dvh lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
+      {/* ── Sign-in ───────────────────────────────────────────── */}
+      <div className="flex items-center justify-center px-6 py-16 sm:px-10">
         <div className="w-full max-w-sm">
-          <div className="flex items-center gap-2.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-sm font-bold text-white shadow-glow-sm">
-              G
-            </span>
-            <span className="text-base font-semibold tracking-tight text-ink">
-              Gmail Campaigns
-            </span>
-          </div>
+          <Brand markSize={32} wordmarkClassName="text-base" />
 
-          <h1 className="mt-10 text-2xl font-semibold tracking-tight text-ink">
-            Sign in to your workspace
+          <p className="eyebrow mt-12">Mail-merge &amp; sequencing</p>
+          <h1 className="mt-3 text-[34px] font-semibold leading-[1.05] tracking-[-0.03em] text-ink">
+            Earn a row in
+            <br />
+            the inbox.
           </h1>
-          <p className="mt-2 text-sm text-muted">
-            Use your Google Workspace account. Campaigns send from your own
-            mailbox on your own sending quota.
+          <p className="mt-4 text-[15px] leading-relaxed text-muted">
+            Send personalized campaigns and follow-up sequences from your own
+            Gmail — on your real deliverability and quota, never a third-party
+            relay.
           </p>
 
           <form
@@ -34,64 +32,155 @@ export default async function Home() {
               "use server";
               await signIn("google", { redirectTo: "/dashboard" });
             }}
-            className="mt-8"
+            className="mt-9"
           >
-            <button className={buttonClass("primary", "md") + " w-full"}>
+            <button className={buttonClass("primary", "lg") + " group w-full"}>
               Continue with Google
-              <ArrowRightIcon className="h-4 w-4" strokeWidth={2} />
+              <ArrowRightIcon
+                className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                strokeWidth={2}
+              />
             </button>
           </form>
 
-          <p className="mt-6 text-xs leading-relaxed text-faint">
-            By continuing you authorize the app to create a campaign Sheet in
-            your Drive. Gmail sending is authorized separately, once, from inside
-            that Sheet.
+          <p className="mt-5 font-mono text-[11px] leading-relaxed text-faint">
+            Continuing creates a campaign Sheet in your Drive. Gmail sending is
+            authorized once, separately, from inside that Sheet.
           </p>
         </div>
       </div>
 
-      {/* Brand panel */}
-      <div className="relative hidden flex-col justify-between overflow-hidden border-l border-line bg-surface p-12 lg:flex">
-        {/* ambient accent glow */}
+      {/* ── The thesis: a personal note, landing as a real inbox row ── */}
+      <div className="relative hidden flex-col justify-center overflow-hidden bg-[#0e5139] p-12 lg:flex">
+        {/* ambient pine light + faint grid */}
         <div
-          className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-accent-500/20 blur-3xl"
+          className="pointer-events-none absolute -right-32 -top-24 h-[28rem] w-[28rem] rounded-full bg-accent-400/25 blur-3xl"
           aria-hidden
         />
         <div
-          className="pointer-events-none absolute -bottom-32 left-0 h-80 w-80 rounded-full bg-accent-600/15 blur-3xl"
+          className="pointer-events-none absolute -bottom-32 -left-20 h-80 w-80 rounded-full bg-signal-500/15 blur-3xl"
           aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.06]"
+          aria-hidden
+          style={{
+            backgroundImage:
+              "linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)",
+            backgroundSize: "44px 44px",
+          }}
         />
 
-        <div className="relative flex items-center gap-2 text-sm text-muted">
-          <EnvelopeIcon className="h-4 w-4 text-accent-600" strokeWidth={2} />
-          Mail-merge &amp; sequencing
-        </div>
-        <div className="relative">
-          <p className="text-2xl font-medium leading-snug tracking-tight text-ink">
-            Personalized campaigns and follow-up sequences, sent from your real
-            Gmail — not a third-party relay.
+        <div className="relative mx-auto w-full max-w-md">
+          <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-accent-200">
+            Primary · 9:41 AM
           </p>
-          <p className="mt-5 max-w-md text-sm leading-relaxed text-muted">
-            Upload contacts, compose with merge fields, schedule a send window,
-            and track opens, clicks, and replies — all on your own
-            deliverability and quota.
+
+          <InboxMock />
+
+          <p className="mt-7 max-w-sm text-[15px] leading-relaxed text-accent-50/90">
+            Sent from your Gmail. It lands like a note from a person — because it
+            is one. Merge fields fill in, follow-ups thread, opens and replies
+            come back to you.
           </p>
-        </div>
-        <div className="relative grid grid-cols-3 gap-4 border-t border-line pt-8 text-sm">
-          <Feature title="Your mailbox" sub="Real Gmail quota" />
-          <Feature title="Sequences" sub="Threaded follow-ups" />
-          <Feature title="Analytics" sub="Opens · clicks · replies" />
+
+          <div className="mt-8 grid grid-cols-3 gap-5 border-t border-white/12 pt-6">
+            <Feature title="Your mailbox" sub="Real Gmail quota" />
+            <Feature title="Sequences" sub="Threaded follow-ups" />
+            <Feature title="Analytics" sub="Opens · clicks · replies" />
+          </div>
         </div>
       </div>
     </main>
   );
 }
 
+/** The signature: a mail-merge email shown as a real, personal inbox row. */
+function InboxMock() {
+  return (
+    <div className="mt-4 overflow-hidden rounded-2xl bg-surface shadow-pop ring-1 ring-black/5">
+      <div className="flex items-center justify-between border-b border-line px-4 py-2.5">
+        <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-faint">
+          Inbox
+        </span>
+        <span className="font-mono text-[11px] text-faint">3 unread</span>
+      </div>
+
+      {/* The earned row — your personal email, unread, starred, at the top. */}
+      <div className="relative flex gap-3 bg-accent-50/60 px-4 py-3.5">
+        <span
+          className="absolute inset-y-0 left-0 w-[3px] bg-accent-600"
+          aria-hidden
+        />
+        <span
+          className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-signal-500"
+          aria-hidden
+        />
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-100 font-mono text-xs font-semibold text-accent-700">
+          JL
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-baseline justify-between gap-2">
+            <span className="truncate text-sm font-semibold text-ink">
+              Jordan Lee
+            </span>
+            <span className="shrink-0 font-mono text-[11px] text-faint">
+              9:41 AM
+            </span>
+          </div>
+          <div className="truncate text-sm font-medium text-ink">
+            Quick question,{" "}
+            <span className="rounded bg-signal-100 px-1 text-signal-600 decoration-signal-400 underline-offset-2">
+              Ada
+            </span>
+          </div>
+          <div className="truncate text-[13px] text-muted">
+            Saw you just shipped the new docs — wanted to ask how you…
+          </div>
+          <div className="mt-1.5 font-mono text-[11px] text-faint">
+            {"{{first_name}}"} → Ada
+          </div>
+        </div>
+        <StarIcon
+          className="mt-0.5 h-4 w-4 shrink-0 text-signal-500"
+          fill="currentColor"
+          strokeWidth={1.5}
+        />
+      </div>
+
+      {/* The robots, quieter — read, transactional, no spark. */}
+      {[
+        { from: "GitHub", subject: "[acme/web] 3 new pull requests", time: "8:02" },
+        { from: "Figma", subject: "Weekly digest for your team", time: "Tue" },
+      ].map((r) => (
+        <div
+          key={r.from}
+          className="flex gap-3 border-t border-line/70 px-4 py-3"
+        >
+          <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-transparent" aria-hidden />
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-subtle font-mono text-xs font-medium text-faint">
+            {r.from[0]}
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-baseline justify-between gap-2">
+              <span className="truncate text-sm text-muted">{r.from}</span>
+              <span className="shrink-0 font-mono text-[11px] text-faint">
+                {r.time}
+              </span>
+            </div>
+            <div className="truncate text-[13px] text-faint">{r.subject}</div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function Feature({ title, sub }: { title: string; sub: string }) {
   return (
     <div>
-      <div className="font-medium text-ink">{title}</div>
-      <div className="mt-0.5 text-xs text-muted">{sub}</div>
+      <div className="text-sm font-semibold text-white">{title}</div>
+      <div className="mt-0.5 font-mono text-[11px] text-accent-200">{sub}</div>
     </div>
   );
 }

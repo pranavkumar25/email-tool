@@ -98,16 +98,7 @@ export function SectionTitle({
   children: React.ReactNode;
   className?: string;
 }) {
-  return (
-    <h2
-      className={cn(
-        "text-[11px] font-semibold uppercase tracking-[0.12em] text-faint",
-        className,
-      )}
-    >
-      {children}
-    </h2>
-  );
+  return <h2 className={cn("eyebrow", className)}>{children}</h2>;
 }
 
 export function Divider({ className }: { className?: string }) {
@@ -121,20 +112,23 @@ export function PageHeader({
   subtitle,
   actions,
   breadcrumb,
+  eyebrow,
 }: {
   title: React.ReactNode;
   subtitle?: React.ReactNode;
   actions?: React.ReactNode;
   breadcrumb?: React.ReactNode;
+  eyebrow?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div className="min-w-0">
         {breadcrumb && <div className="mb-1.5">{breadcrumb}</div>}
-        <h1 className="truncate text-xl font-semibold tracking-tight text-ink">
+        {eyebrow && <div className="eyebrow mb-2">{eyebrow}</div>}
+        <h1 className="truncate text-[26px] font-semibold leading-tight tracking-[-0.02em] text-ink">
           {title}
         </h1>
-        {subtitle && <p className="mt-1 text-sm text-muted">{subtitle}</p>}
+        {subtitle && <p className="mt-1.5 text-sm text-muted">{subtitle}</p>}
       </div>
       {actions && (
         <div className="flex shrink-0 items-center gap-2">{actions}</div>
@@ -357,25 +351,23 @@ export function Stat({
     >
       {accent && (
         <div
-          className="pointer-events-none absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-accent-500 to-transparent"
+          className="pointer-events-none absolute inset-y-3 left-0 w-0.5 rounded-full bg-accent-500"
           aria-hidden
         />
       )}
       <div className="flex items-center justify-between">
-        <div className="text-[11px] font-medium uppercase tracking-wider text-faint">
-          {label}
-        </div>
+        <div className="eyebrow">{label}</div>
         {Icon && <Icon className="h-4 w-4 text-faint" strokeWidth={2} />}
       </div>
-      <div className="mt-1.5 flex items-baseline gap-2">
-        <div className="text-2xl font-semibold tabular-nums text-ink">
+      <div className="mt-2 flex items-baseline gap-2">
+        <div className="font-mono text-[26px] font-medium leading-none tracking-[-0.02em] tabular-nums text-ink">
           {value}
         </div>
         {delta && (
           <span
             className={cn(
-              "inline-flex items-center gap-0.5 text-xs font-medium tabular-nums",
-              delta.dir === "up" ? "text-emerald-600" : "text-rose-600",
+              "inline-flex items-center gap-0.5 font-mono text-xs font-medium tabular-nums",
+              delta.dir === "up" ? "text-accent-600" : "text-rose-600",
             )}
           >
             {delta.dir === "up" ? (
@@ -388,7 +380,7 @@ export function Stat({
         )}
       </div>
       {sub != null && (
-        <div className="mt-0.5 text-xs text-muted tabular-nums">{sub}</div>
+        <div className="mt-1 text-xs text-muted tabular-nums">{sub}</div>
       )}
     </Card>
   );
@@ -443,7 +435,7 @@ export function StatusBadge({ status }: { status: string }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium",
+        "inline-flex items-center gap-1.5 rounded-full px-2 py-1 font-mono text-[10px] font-medium uppercase tracking-[0.08em]",
         tone.ring,
         tone.text,
       )}

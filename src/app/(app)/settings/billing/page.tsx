@@ -32,9 +32,11 @@ export default function BillingSettingsPage() {
               <SectionTitle>Current plan</SectionTitle>
               <Badge tone="accent">Pro</Badge>
             </div>
-            <p className="mt-2 text-2xl font-semibold tracking-tight text-ink">
+            <p className="mt-2 font-mono text-[28px] font-medium tracking-[-0.02em] text-ink">
               $49
-              <span className="text-base font-normal text-muted">/month</span>
+              <span className="font-sans text-base font-normal text-muted">
+                /month
+              </span>
             </p>
             <p className="mt-1 text-sm text-muted">
               Renews on Jul 1, 2026 · billed monthly

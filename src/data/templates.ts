@@ -25,13 +25,14 @@ export const TEMPLATE_CATEGORIES = templateCategories.filter(
   (c) => c !== "All",
 ) as Exclude<(typeof templateCategories)[number], "All">[];
 
-/** Thumbnail gradient choices, cycled when creating templates. */
+/** Thumbnail gradient choices, cycled when creating templates. Tuned to the
+ *  inboxrow world — pine, marigold, and warm earth, with a couple of cools. */
 export const TEMPLATE_GRADIENTS = [
-  "from-indigo-500 to-violet-500",
-  "from-rose-500 to-orange-500",
-  "from-emerald-500 to-teal-500",
-  "from-sky-500 to-indigo-500",
-  "from-amber-500 to-rose-500",
-  "from-violet-500 to-fuchsia-500",
-  "from-cyan-500 to-blue-500",
+  "from-accent-600 to-accent-400",
+  "from-signal-600 to-amber-400",
+  "from-teal-600 to-emerald-400",
+  "from-sky-600 to-teal-500",
+  "from-amber-600 to-rose-400",
+  "from-emerald-700 to-lime-400",
+  "from-stone-500 to-stone-300",
 ];

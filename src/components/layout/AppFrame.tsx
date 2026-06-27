@@ -22,6 +22,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { IconType } from "@/components/ui";
 import { signOutAction } from "@/server/actions";
+import { Brand } from "./Brand";
 
 type NavItem = { label: string; href: string; icon: IconType; exact?: boolean };
 type NavSection = { heading?: string; items: NavItem[] };
@@ -72,9 +73,7 @@ function NavTree({
       {NAV.map((section, i) => (
         <div key={i} className="flex flex-col gap-0.5">
           {section.heading && (
-            <div className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-faint">
-              {section.heading}
-            </div>
+            <div className="eyebrow px-3 pb-1.5">{section.heading}</div>
           )}
           {section.items.map(({ label, href, icon: Icon, exact }) => {
             const active = isActive(pathname, href, exact);
@@ -116,15 +115,14 @@ function NavTree({
   );
 }
 
-function Brand() {
+function BrandLink() {
   return (
-    <Link href="/dashboard" className="flex items-center gap-2.5 px-1">
-      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-sm font-bold text-white shadow-glow-sm">
-        G
-      </span>
-      <span className="text-[15px] font-semibold tracking-tight text-ink">
-        Gmail Campaigns
-      </span>
+    <Link
+      href="/dashboard"
+      className="flex items-center px-1 outline-none"
+      aria-label="inboxrow — go to dashboard"
+    >
+      <Brand markSize={30} />
     </Link>
   );
 }
@@ -136,7 +134,7 @@ function UserFooter({ email }: { email: string | null }) {
         <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-soft text-xs font-semibold uppercase text-accent-700">
           {email?.[0] ?? "?"}
         </span>
-        <span className="min-w-0 flex-1 truncate text-[13px] text-muted">
+        <span className="min-w-0 flex-1 truncate font-mono text-xs text-muted">
           {email ?? "Not signed in"}
         </span>
         <Link
@@ -189,7 +187,7 @@ export function AppFrame({
     <div className="flex min-h-dvh">
       {/* Desktop sidebar */}
       <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col gap-5 border-r border-line bg-surface px-3 py-4 md:flex">
-        <Brand />
+        <BrandLink />
         <CreateButton />
         <div className="-mr-1 flex-1 overflow-y-auto pr-1">
           <NavTree pathname={pathname} />
@@ -210,7 +208,7 @@ export function AppFrame({
           />
           <aside className="absolute left-0 top-0 flex h-full w-64 animate-fade-in flex-col gap-5 border-r border-line bg-surface px-3 py-4 shadow-pop">
             <div className="flex items-center justify-between">
-              <Brand />
+              <BrandLink />
               <button
                 onClick={() => setOpen(false)}
                 className="flex h-8 w-8 items-center justify-center rounded-lg text-faint hover:bg-canvas hover:text-ink"
@@ -239,7 +237,7 @@ export function AppFrame({
             <Bars3Icon className="h-5 w-5" />
             <span className="sr-only">Open menu</span>
           </button>
-          <Brand />
+          <BrandLink />
         </header>
 
         <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 md:px-8 md:py-9">

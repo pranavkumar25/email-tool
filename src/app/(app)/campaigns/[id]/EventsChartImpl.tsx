@@ -13,7 +13,19 @@ import {
 } from "recharts";
 import type { ChartPoint } from "./EventsChart";
 
-// Distinguished by hue + dash pattern (never color alone).
+// Chart palette, tuned to the brand: pine for your sends, then warm + cool
+// hues for engagement. Distinguished by hue + dash pattern (never color alone).
+const AXIS = "#869089";
+const GRID = "#e3e7df";
+const LINE = "#e0e4dd";
+const TOOLTIP = {
+  borderRadius: 12,
+  border: "1px solid #e0e4dd",
+  background: "#ffffff",
+  boxShadow: "0 16px 40px -12px rgb(21 32 28 / 0.22)",
+  fontSize: 12,
+} as const;
+
 const SERIES: {
   key: keyof Omit<ChartPoint, "date">;
   label: string;
@@ -21,9 +33,9 @@ const SERIES: {
   dash?: string;
   width: number;
 }[] = [
-  { key: "OPEN", label: "Opened", color: "#818cf8", dash: "6 3", width: 2 },
-  { key: "CLICK", label: "Clicked", color: "#0ea5e9", dash: "2 3", width: 2 },
-  { key: "REPLY", label: "Replied", color: "#10b981", dash: "8 2 2 2", width: 2 },
+  { key: "OPEN", label: "Opened", color: "#dd8e22", dash: "6 3", width: 2 },
+  { key: "CLICK", label: "Clicked", color: "#0284c7", dash: "2 3", width: 2 },
+  { key: "REPLY", label: "Replied", color: "#7c5cff", dash: "8 2 2 2", width: 2 },
 ];
 
 function fmtDate(d: string) {
@@ -48,54 +60,48 @@ export function EventsChartImpl({ data }: { data: ChartPoint[] }) {
         >
           <defs>
             <linearGradient id="sentFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#6366f1" stopOpacity={0.2} />
-              <stop offset="100%" stopColor="#6366f1" stopOpacity={0} />
+              <stop offset="0%" stopColor="#1c7a59" stopOpacity={0.2} />
+              <stop offset="100%" stopColor="#1c7a59" stopOpacity={0} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="#eef0f3" vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke={GRID} vertical={false} />
           <XAxis
             dataKey="date"
             tickFormatter={fmtDate}
             fontSize={11}
-            tick={{ fill: "#8b909c" }}
+            tick={{ fill: AXIS }}
             tickLine={false}
-            axisLine={{ stroke: "#e6e7eb" }}
+            axisLine={{ stroke: LINE }}
           />
           <YAxis
             allowDecimals={false}
             fontSize={11}
-            tick={{ fill: "#8b909c" }}
+            tick={{ fill: AXIS }}
             tickLine={false}
             axisLine={false}
             width={32}
           />
           <Tooltip
-            cursor={{ stroke: "#d3d5db", strokeWidth: 1 }}
-            contentStyle={{
-              borderRadius: 10,
-              border: "1px solid #e6e7eb",
-              background: "#ffffff",
-              boxShadow: "0 12px 32px -8px rgb(16 24 40 / 0.18)",
-              fontSize: 12,
-            }}
-            labelStyle={{ color: "#16181d", fontWeight: 600 }}
-            itemStyle={{ color: "#5a5f6b" }}
+            cursor={{ stroke: "#cad0c6", strokeWidth: 1 }}
+            contentStyle={TOOLTIP}
+            labelStyle={{ color: "#15201c", fontWeight: 600 }}
+            itemStyle={{ color: "#586059" }}
           />
           <Legend
             iconType="plainline"
             formatter={(v) => (
-              <span style={{ color: "#5a5f6b", fontSize: 12 }}>{v}</span>
+              <span style={{ color: "#586059", fontSize: 12 }}>{v}</span>
             )}
           />
           <Area
             name="Sent"
             type="monotone"
             dataKey="SENT"
-            stroke="#4f46e5"
+            stroke="#136548"
             strokeWidth={2.25}
             fill="url(#sentFill)"
             dot={false}
-            activeDot={{ r: 3.5, fill: "#4f46e5", strokeWidth: 0 }}
+            activeDot={{ r: 3.5, fill: "#136548", strokeWidth: 0 }}
           />
           {SERIES.map((s) => (
             <Line

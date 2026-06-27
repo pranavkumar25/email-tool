@@ -113,10 +113,10 @@ export default async function SegmentsPage() {
 
                 <div className="mt-auto flex items-end justify-between">
                   <div>
-                    <div className="text-xl font-semibold tabular-nums text-ink">
+                    <div className="font-mono text-xl font-medium tracking-[-0.02em] tabular-nums text-ink">
                       {formatNumber(seg.count)}
                     </div>
-                    <div className="text-xs text-faint">contacts</div>
+                    <div className="mt-0.5 text-xs text-faint">contacts</div>
                   </div>
                   <div className="text-xs text-faint">
                     Updated {formatDate(seg.updatedAt)}

@@ -134,18 +134,26 @@ export default async function DashboardPage() {
               <Link
                 key={c.id}
                 href={`/campaigns/${c.id}`}
-                className="flex items-center justify-between gap-4 px-4 py-3 transition-colors hover:bg-canvas"
+                className="group relative flex items-center gap-4 py-3.5 pl-5 pr-4 transition-colors hover:bg-canvas"
               >
-                <div className="min-w-0">
+                <span
+                  className="absolute inset-y-2 left-0 w-[3px] origin-center scale-y-0 rounded-full bg-accent-600 transition-transform duration-150 group-hover:scale-y-100"
+                  aria-hidden
+                />
+                <div className="min-w-0 flex-1">
                   <div className="truncate text-sm font-medium text-ink">
                     {c.name}
                   </div>
-                  <div className="mt-0.5 text-xs text-muted tabular-nums">
+                  <div className="mt-0.5 font-mono text-xs text-faint tabular-nums">
                     {c._count.contacts.toLocaleString()} contacts ·{" "}
                     {c.createdAt.toLocaleDateString()}
                   </div>
                 </div>
                 <StatusBadge status={c.status} />
+                <ArrowUpRightIcon
+                  className="h-4 w-4 shrink-0 text-faint opacity-0 transition-opacity group-hover:opacity-100"
+                  strokeWidth={2}
+                />
               </Link>
             ))}
           </Card>

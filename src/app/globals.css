@@ -3,13 +3,13 @@
 @tailwind utilities;
 
 /*
- * Gmail Campaigns — light, enterprise-grade email-platform theme.
- * Soft gray canvas, white surfaces, a single indigo accent. Distinctions are
- * carried by elevation, weight, and accent — never by color alone.
+ * inboxrow — a precision instrument for personal-feeling outreach.
+ * Faint sage paper, white surfaces, deep pine accent, a warm marigold spark.
+ * Two type voices: IBM Plex Sans (human) and IBM Plex Mono (system/data).
  */
 :root {
-  --background: #f5f6f8;
-  --foreground: #16181d;
+  --background: #f1f3ef;
+  --foreground: #15201c;
 }
 
 @layer base {
@@ -19,12 +19,12 @@
 
   body {
     color: var(--foreground);
-    /* Soft canvas with a barely-there accent wash at the top. */
+    /* Sage canvas with a barely-there pine wash drawn toward the top-right. */
     background-color: var(--background);
     background-image: radial-gradient(
-      48rem 30rem at 100% -10%,
-      rgba(99, 102, 241, 0.06),
-      transparent 60%
+      52rem 32rem at 100% -12%,
+      rgba(28, 122, 89, 0.06),
+      transparent 62%
     );
     background-attachment: fixed;
     background-repeat: no-repeat;
@@ -37,28 +37,37 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* Consistent, visible accent focus ring on all interactive elements. */
+  /* Consistent, visible pine focus ring on all interactive elements. */
   :focus-visible {
     outline: none;
     box-shadow:
       0 0 0 2px #ffffff,
-      0 0 0 4px rgba(79, 70, 229, 0.55);
+      0 0 0 4px rgba(19, 101, 72, 0.55);
     border-radius: 8px;
   }
 
   ::selection {
-    background: rgba(99, 102, 241, 0.22);
-    color: #16181d;
+    background: rgba(28, 122, 89, 0.2);
+    color: #15201c;
   }
 }
 
 @layer components {
+  /*
+   * The system/data voice. Mono, uppercase, widely tracked — used for eyebrows,
+   * section labels, and anything that speaks for the machine (counts, statuses,
+   * field names). The single device that ties the whole interface together.
+   */
+  .eyebrow {
+    @apply font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-faint;
+  }
+
   /* Rich-text / email body preview styling (composer + previews). */
   .prose-email {
     @apply text-sm leading-relaxed text-muted;
   }
   .prose-email a {
-    @apply text-accent-600 underline underline-offset-2;
+    @apply text-accent-700 underline underline-offset-2;
   }
   .prose-email ul {
     @apply my-2 list-disc pl-5;
@@ -79,7 +88,7 @@
     background: linear-gradient(
       90deg,
       transparent,
-      rgba(255, 255, 255, 0.75),
+      rgba(255, 255, 255, 0.8),
       transparent
     );
     animation: shimmer 1.6s infinite;
@@ -100,20 +109,20 @@
   }
 }
 
-/* Thin, light scrollbars to match the minimal aesthetic. */
+/* Thin, light scrollbars to match the calm, precise aesthetic. */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #d3d5db transparent;
+  scrollbar-color: #cad0c6 transparent;
 }
 *::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
 *::-webkit-scrollbar-thumb {
-  background: #d3d5db;
+  background: #cad0c6;
   border-radius: 9999px;
-  border: 2px solid #f5f6f8;
+  border: 2px solid #f1f3ef;
 }
 *::-webkit-scrollbar-thumb:hover {
-  background: #b9bcc5;
+  background: #aeb6ab;
 }

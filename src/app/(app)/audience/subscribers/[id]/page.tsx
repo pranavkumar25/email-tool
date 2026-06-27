@@ -205,16 +205,16 @@ export default async function SubscriberDetailPage({
             <SectionTitle>Engagement</SectionTitle>
             <div className="mt-4 grid grid-cols-2 gap-4">
               <div>
-                <div className="text-2xl font-semibold tabular-nums text-ink">
+                <div className="font-mono text-2xl font-medium tracking-[-0.02em] tabular-nums text-ink">
                   {subscriber.opens}
                 </div>
-                <div className="text-xs text-muted">Total opens</div>
+                <div className="mt-0.5 text-xs text-muted">Total opens</div>
               </div>
               <div>
-                <div className="text-2xl font-semibold tabular-nums text-ink">
+                <div className="font-mono text-2xl font-medium tracking-[-0.02em] tabular-nums text-ink">
                   {subscriber.clicks}
                 </div>
-                <div className="text-xs text-muted">Total clicks</div>
+                <div className="mt-0.5 text-xs text-muted">Total clicks</div>
               </div>
             </div>
             <Divider className="my-4" />
