@@ -3,31 +3,38 @@
 @tailwind utilities;
 
 /*
- * inboxrow — a precision instrument for personal-feeling outreach.
- * Faint sage paper, white surfaces, deep pine accent, a warm marigold spark.
- * Two type voices: IBM Plex Sans (human) and IBM Plex Mono (system/data).
+ * InboxRow — one typeface, four colors.
+ * Inter carries every word. Black and white set the page; blue (#004FFF) and
+ * red (#FB4B4E) are reserved for action — CTAs, links, highlights. Surfaces
+ * are near-white, type is brand black, distinctions carried by hairline
+ * borders, weight, and the two accents — never decoration.
  */
 :root {
-  --background: #f1f3ef;
-  --foreground: #15201c;
+  /* Inter Variable, hosted at rsms.me (loaded in the document <head>). */
+  --font-sans: "InterVariable", "Inter", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+
+  --background: #fbfcfd;
+  --foreground: #050505;
+
+  font-family: var(--font-sans);
+  /* Ligatures + the brand's chosen Inter character variants:
+   * cv10 capital G with spur · cv06 simplified u · cv11 single-story a. */
+  font-feature-settings: "liga" 1, "calt" 1, "cv10" 1, "cv06" 1, "cv11" 1;
 }
 
 @layer base {
   html {
     color-scheme: light;
+    font-feature-settings: "liga" 1, "calt" 1, "cv10" 1, "cv06" 1, "cv11" 1;
   }
 
   body {
     color: var(--foreground);
-    /* Sage canvas with a barely-there pine wash drawn toward the top-right. */
+    /* Clean near-white page — color is for action, never decoration. */
     background-color: var(--background);
-    background-image: radial-gradient(
-      52rem 32rem at 100% -12%,
-      rgba(28, 122, 89, 0.06),
-      transparent 62%
-    );
-    background-attachment: fixed;
-    background-repeat: no-repeat;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
@@ -37,29 +44,30 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* Consistent, visible pine focus ring on all interactive elements. */
+  /* Consistent, visible blue focus ring on all interactive elements. */
   :focus-visible {
     outline: none;
     box-shadow:
       0 0 0 2px #ffffff,
-      0 0 0 4px rgba(19, 101, 72, 0.55);
+      0 0 0 4px rgba(0, 79, 255, 0.55);
     border-radius: 8px;
   }
 
+  /* Blue is the highlight color — selection reads like a brand swatch. */
   ::selection {
-    background: rgba(28, 122, 89, 0.2);
-    color: #15201c;
+    background: #004fff;
+    color: #fdfffc;
   }
 }
 
 @layer components {
   /*
-   * The system/data voice. Mono, uppercase, widely tracked — used for eyebrows,
-   * section labels, and anything that speaks for the machine (counts, statuses,
-   * field names). The single device that ties the whole interface together.
+   * Overline / caption voice — Inter, uppercase, tracked, semibold. Used for
+   * eyebrows, section labels, nav headings, and stat labels. Matches the
+   * brand's Caption · Overline spec (12 / 600).
    */
   .eyebrow {
-    @apply font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-faint;
+    @apply text-[11px] font-semibold uppercase tracking-[0.14em] text-faint;
   }
 
   /* Rich-text / email body preview styling (composer + previews). */
@@ -67,7 +75,7 @@
     @apply text-sm leading-relaxed text-muted;
   }
   .prose-email a {
-    @apply text-accent-700 underline underline-offset-2;
+    @apply text-accent-600 underline underline-offset-2;
   }
   .prose-email ul {
     @apply my-2 list-disc pl-5;
@@ -112,17 +120,17 @@
 /* Thin, light scrollbars to match the calm, precise aesthetic. */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #cad0c6 transparent;
+  scrollbar-color: #d4d8e0 transparent;
 }
 *::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
 *::-webkit-scrollbar-thumb {
-  background: #cad0c6;
+  background: #d4d8e0;
   border-radius: 9999px;
-  border: 2px solid #f1f3ef;
+  border: 2px solid #fbfcfd;
 }
 *::-webkit-scrollbar-thumb:hover {
-  background: #aeb6ab;
+  background: #b9bfc9;
 }

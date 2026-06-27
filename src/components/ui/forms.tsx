@@ -60,12 +60,12 @@ export function Field({
       {label && (
         <Label>
           {label}
-          {required && <span className="ml-0.5 text-rose-500">*</span>}
+          {required && <span className="ml-0.5 text-signal-500">*</span>}
         </Label>
       )}
       {children}
       {error ? (
-        <p className="text-xs text-rose-600">{error}</p>
+        <p className="text-xs text-signal-600">{error}</p>
       ) : hint ? (
         <p className="text-xs text-faint">{hint}</p>
       ) : null}

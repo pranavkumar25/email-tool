@@ -21,17 +21,22 @@ export type IconType = React.ForwardRefExoticComponent<
 
 /* ─────────────────────────── Button ─────────────────────────── */
 
-type Variant = "primary" | "secondary" | "ghost" | "danger";
+type Variant = "primary" | "accent" | "secondary" | "ghost" | "danger";
 type Size = "sm" | "md" | "lg";
 
 const VARIANT: Record<Variant, string> = {
+  // Blue CTA — the primary action.
   primary:
-    "bg-accent text-white shadow-glow-sm hover:bg-accent-700 active:bg-accent-700 border border-transparent",
+    "bg-accent text-white shadow-glow-sm hover:bg-accent-600 active:bg-accent-700 border border-transparent",
+  // Red accent — secondary CTAs and emphasis.
+  accent:
+    "bg-signal text-white shadow-xs hover:bg-signal-600 active:bg-signal-700 border border-transparent",
+  // Neutral — white surface, hairline border.
   secondary:
     "bg-surface text-ink border border-line shadow-xs hover:bg-canvas hover:border-line-strong",
   ghost: "bg-transparent text-muted hover:bg-canvas hover:text-ink",
   danger:
-    "bg-rose-600 text-white shadow-xs hover:bg-rose-700 border border-transparent",
+    "bg-signal-600 text-white shadow-xs hover:bg-signal-700 border border-transparent",
 };
 
 const SIZE: Record<Size, string> = {
@@ -142,11 +147,11 @@ export function PageHeader({
 type ToneKey = "accent" | "success" | "warning" | "danger" | "info" | "neutral";
 
 const TILE_TONE: Record<ToneKey, string> = {
-  accent: "bg-accent-soft text-accent-600 ring-accent-600/15",
+  accent: "bg-accent-soft text-accent-600 ring-accent-500/15",
   success: "bg-emerald-50 text-emerald-600 ring-emerald-600/15",
   warning: "bg-amber-50 text-amber-600 ring-amber-600/15",
-  danger: "bg-rose-50 text-rose-600 ring-rose-600/15",
-  info: "bg-sky-50 text-sky-600 ring-sky-600/15",
+  danger: "bg-signal-50 text-signal-600 ring-signal-500/20",
+  info: "bg-accent-50 text-accent-600 ring-accent-500/15",
   neutral: "bg-subtle text-muted ring-line",
 };
 
@@ -175,11 +180,11 @@ export function IconTile({
 /* ─────────────────────────── Badge / Tag ─────────────────────────── */
 
 const BADGE_TONE: Record<ToneKey, string> = {
-  accent: "bg-accent-soft text-accent-700 ring-accent-600/15",
+  accent: "bg-accent-soft text-accent-700 ring-accent-500/15",
   success: "bg-emerald-50 text-emerald-700 ring-emerald-600/15",
   warning: "bg-amber-50 text-amber-700 ring-amber-600/15",
-  danger: "bg-rose-50 text-rose-700 ring-rose-600/15",
-  info: "bg-sky-50 text-sky-700 ring-sky-600/15",
+  danger: "bg-signal-50 text-signal-700 ring-signal-500/20",
+  info: "bg-accent-50 text-accent-700 ring-accent-500/15",
   neutral: "bg-subtle text-muted ring-line",
 };
 
@@ -302,8 +307,8 @@ export function Progress({
     accent: "bg-accent",
     success: "bg-emerald-500",
     warning: "bg-amber-500",
-    danger: "bg-rose-500",
-    info: "bg-sky-500",
+    danger: "bg-signal-500",
+    info: "bg-accent-500",
     neutral: "bg-faint",
   };
   return (
@@ -360,14 +365,14 @@ export function Stat({
         {Icon && <Icon className="h-4 w-4 text-faint" strokeWidth={2} />}
       </div>
       <div className="mt-2 flex items-baseline gap-2">
-        <div className="font-mono text-[26px] font-medium leading-none tracking-[-0.02em] tabular-nums text-ink">
+        <div className="text-[28px] font-semibold leading-none tracking-[-0.03em] tabular-nums text-ink">
           {value}
         </div>
         {delta && (
           <span
             className={cn(
-              "inline-flex items-center gap-0.5 font-mono text-xs font-medium tabular-nums",
-              delta.dir === "up" ? "text-accent-600" : "text-rose-600",
+              "inline-flex items-center gap-0.5 text-xs font-semibold tabular-nums",
+              delta.dir === "up" ? "text-accent-600" : "text-signal-600",
             )}
           >
             {delta.dir === "up" ? (
@@ -409,15 +414,15 @@ const STATUS_TONES: Record<string, Tone> = {
   REPLIED: { dot: null, icon: CheckIcon, text: "text-accent-700", ring: "bg-accent-soft ring-1 ring-inset ring-accent-600/15" },
   BOUNCED: { dot: null, icon: ExclamationTriangleIcon, text: "text-amber-700", ring: "bg-amber-50" },
   UNSUBSCRIBED: { dot: null, icon: NoSymbolIcon, text: "text-faint", ring: "bg-subtle" },
-  FAILED: { dot: null, icon: ExclamationTriangleIcon, text: "text-rose-700", ring: "bg-rose-50 ring-1 ring-inset ring-rose-600/15" },
+  FAILED: { dot: null, icon: ExclamationTriangleIcon, text: "text-signal-700", ring: "bg-signal-50 ring-1 ring-inset ring-signal-500/20" },
   // Subscriber lifecycle
   SUBSCRIBED: { dot: "bg-emerald-500", text: "text-emerald-700", ring: "bg-emerald-50 ring-1 ring-inset ring-emerald-600/15" },
   PENDING: { dot: null, icon: ArrowPathIcon, text: "text-amber-700", ring: "bg-amber-50", label: "Pending" },
   CLEANED: { dot: null, icon: NoSymbolIcon, text: "text-faint", ring: "bg-subtle" },
-  COMPLAINED: { dot: null, icon: ExclamationTriangleIcon, text: "text-rose-700", ring: "bg-rose-50" },
+  COMPLAINED: { dot: null, icon: ExclamationTriangleIcon, text: "text-signal-700", ring: "bg-signal-50" },
   // Campaign / automation status
   DRAFT: { dot: "bg-transparent ring-1 ring-inset ring-line-strong", text: "text-faint", ring: "bg-subtle" },
-  SCHEDULED: { dot: "bg-sky-500", text: "text-sky-700", ring: "bg-sky-50 ring-1 ring-inset ring-sky-600/15", label: "Scheduled" },
+  SCHEDULED: { dot: "bg-accent-500", text: "text-accent-700", ring: "bg-accent-50 ring-1 ring-inset ring-accent-500/15", label: "Scheduled" },
   SENDING: { dot: null, icon: ArrowPathIcon, text: "text-accent-700", ring: "bg-accent-soft", label: "Sending" },
   PROVISIONING: { dot: null, icon: ArrowPathIcon, text: "text-accent-700", ring: "bg-accent-soft", label: "Provisioning" },
   ACTIVE: { dot: "bg-emerald-500 shadow-[0_0_0_3px_rgba(16,185,129,0.15)]", text: "text-emerald-700", ring: "bg-emerald-50 ring-1 ring-inset ring-emerald-600/15" },
@@ -435,7 +440,7 @@ export function StatusBadge({ status }: { status: string }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-2 py-1 font-mono text-[10px] font-medium uppercase tracking-[0.08em]",
+        "inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em]",
         tone.ring,
         tone.text,
       )}
