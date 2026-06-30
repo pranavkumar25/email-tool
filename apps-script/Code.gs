@@ -130,8 +130,10 @@ function sendOne_(cfg, step, row, col, header) {
   if (base) {
     html = wrapLinks_(html, base, cfg.campaignId, cid);
     html += openPixel_(base, cfg.campaignId, cid, step.stepOrder);
-    html += unsubscribeFooter_(base, cfg.campaignId, cid, cfg.unsubscribeHtml);
-  } else if (cfg.unsubscribeHtml) {
+  }
+  // No default unsubscribe footer — only append a block the campaign explicitly
+  // provides.
+  if (cfg.unsubscribeHtml) {
     html += String(cfg.unsubscribeHtml);
   }
 
@@ -257,15 +259,6 @@ function openPixel_(base, campaignId, contactId, stepOrder) {
   return '<img src="' + base + '/api/track/open?c=' + encodeURIComponent(campaignId) +
     '&u=' + encodeURIComponent(contactId) + '&s=' + encodeURIComponent(stepOrder) +
     '" width="1" height="1" alt="" style="display:none">';
-}
-
-function unsubscribeFooter_(base, campaignId, contactId, customHtml) {
-  var link = base + '/api/unsubscribe?c=' + encodeURIComponent(campaignId) +
-    '&u=' + encodeURIComponent(contactId);
-  var extra = customHtml ? String(customHtml) + '<br>' : '';
-  return '<div style="margin-top:24px;padding-top:12px;border-top:1px solid #eee;' +
-    'font-size:12px;color:#888">' + extra +
-    '<a href="' + link + '" style="color:#888">Unsubscribe</a></div>';
 }
 
 function stripHtml_(html) {

@@ -6,8 +6,9 @@ import { ArrowPathIcon, CheckIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui";
 
 /**
- * Pushes the current tracking/ingest config into an already-provisioned Sheet.
- * Repairs campaigns provisioned while the env pointed at localhost.
+ * Pushes the current tracking/ingest config AND the latest Apps Script engine
+ * into an already-provisioned Sheet. Repairs campaigns provisioned while the
+ * env pointed at localhost, and lets engine fixes reach older campaigns.
  */
 export function ResyncButton({
   campaignId,

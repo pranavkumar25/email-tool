@@ -42,9 +42,17 @@ function guessRole(header: string): Role {
 }
 
 // ── Per-recipient column detection + merge rendering ───────────────────────
-// A header looks like a subject / body column when it (loosely) says so.
+// A header looks like a subject / body column when it (loosely) says so. Body
+// detection is limited to "body" so LinkedIn *_message columns aren't mistaken
+// for the email body.
 const looksLikeSubject = (h: string) => /subject/i.test(h);
-const looksLikeBody = (h: string) => /(?:^|[_\s-])body|message|content|html/i.test(h);
+const looksLikeBody = (h: string) => /body/i.test(h);
+
+// Trailing number in a header, so email_1_body sorts before email_2_body (0 if none).
+const seqIndex = (h: string) => {
+  const m = h.match(/(\d+)/);
+  return m ? parseInt(m[1], 10) : 0;
+};
 
 // Normalize a key so {{first_name}}, {{firstName}} and {{First Name}} all match.
 const normKey = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -158,14 +166,31 @@ export function NewCampaignWizard({
         setCsvRows(res.data);
         setMapping(m);
 
-        // Detect per-recipient subject/body columns (e.g. email_1_subject,
-        // email_1_body). If both exist, default to per-recipient compose since
-        // the file already carries per-row copy.
-        const subjGuess = headers.find(looksLikeSubject) ?? "";
-        const bodyGuess = headers.find(looksLikeBody) ?? "";
-        setSubjectColumn(subjGuess);
-        setBodyColumn(bodyGuess);
-        setComposeMode(subjGuess && bodyGuess ? "perRecipient" : "single");
+        // Detect a per-recipient email sequence (e.g. email_1_subject,
+        // email_1_body, email_2_body …). The first body becomes the initial
+        // email; any later body columns are pre-loaded as threaded follow-ups.
+        const subjectCols = headers.filter(looksLikeSubject);
+        const bodyCols = headers
+          .filter(looksLikeBody)
+          .sort((a, b) => seqIndex(a) - seqIndex(b));
+        const initBody = bodyCols[0] ?? "";
+        const initSubject =
+          subjectCols.find((s) => seqIndex(s) === seqIndex(initBody)) ??
+          subjectCols[0] ??
+          "";
+
+        setSubjectColumn(initSubject);
+        setBodyColumn(initBody);
+        setFollowups(
+          bodyCols.slice(1).map((bc) => ({
+            delayDays: 3,
+            condition: "NO_REPLY" as Condition,
+            subject: "",
+            bodyHtml: "",
+            bodyColumn: bc,
+          })),
+        );
+        setComposeMode(initSubject && initBody ? "perRecipient" : "single");
       },
     });
   }

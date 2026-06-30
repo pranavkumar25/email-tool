@@ -1,7 +1,8 @@
 import { type Auth } from "googleapis";
-import { sheetsClient } from "@/server/google/client";
+import { sheetsClient, scriptClient } from "@/server/google/client";
 import { prisma } from "@/server/db";
 import { trackingBaseUrl } from "@/server/config";
+import { APPS_SCRIPT_CODE, APPS_SCRIPT_MANIFEST } from "@/server/google/appsScriptSource";
 
 type CampaignConfig = {
   id: string;
@@ -45,9 +46,11 @@ export function campaignConfigRows(
 }
 
 /**
- * Rewrite the Config tab of an already-provisioned campaign's Sheet with the
- * current canonical values — primarily to repair a `trackingBaseUrl` /
- * `ingestUrl` that was stamped while the env pointed at localhost.
+ * Re-sync an already-provisioned campaign's Sheet with the current canonical
+ * values: rewrites the Config tab (e.g. to repair a `trackingBaseUrl` /
+ * `ingestUrl` stamped while the env pointed at localhost) and re-pushes the
+ * latest Apps Script engine so engine fixes (e.g. dropping the default
+ * unsubscribe footer) reach campaigns that were provisioned earlier.
  */
 export async function resyncCampaignConfig(
   auth: Auth.OAuth2Client,
@@ -72,6 +75,21 @@ export async function resyncCampaignConfig(
     valueInputOption: "RAW",
     requestBody: { values: rows },
   });
+
+  // Re-push the engine. Triggers + authorization persist across content updates,
+  // so sending continues with the latest code and no re-authorization.
+  if (campaign.scriptId) {
+    const script = scriptClient(auth);
+    await script.projects.updateContent({
+      scriptId: campaign.scriptId,
+      requestBody: {
+        files: [
+          { name: "appsscript", type: "JSON", source: APPS_SCRIPT_MANIFEST },
+          { name: "Code", type: "SERVER_JS", source: APPS_SCRIPT_CODE },
+        ],
+      },
+    });
+  }
 
   return { baseUrl };
 }
