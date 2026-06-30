@@ -235,17 +235,26 @@ export function NewCampaignWizard({
     [csvRows, mapping, emailMapped, composeMode, subjectColumn, bodyColumn, followups],
   );
 
-  // Live preview of how the first contact's email renders in per-recipient mode.
+  // First contact with an email — the sample used for live per-recipient previews.
+  const firstContact = useMemo(() => {
+    if (csvRows.length === 0) return null;
+    const emailHeader = csvHeaders.find((h) => mapping[h] === "email") ?? "";
+    const row = csvRows.find((r) => (r[emailHeader] ?? "").trim());
+    return row ? { row, lut: rowLookup(row, csvHeaders, mapping) } : null;
+  }, [csvRows, csvHeaders, mapping]);
+
+  // Render one CSV column's template for that first contact (initial + follow-ups).
+  const renderColumn = (column: string) =>
+    firstContact && column ? renderRow(firstContact.row[column] ?? "", firstContact.lut) : "";
+
   const preview = useMemo(() => {
-    if (composeMode !== "perRecipient") return null;
-    const row = csvRows.find((r) => (r[csvHeaders.find((h) => mapping[h] === "email") ?? ""] ?? "").trim());
-    if (!row) return null;
-    const lut = rowLookup(row, csvHeaders, mapping);
+    if (composeMode !== "perRecipient" || !firstContact) return null;
     return {
-      subject: subjectColumn ? renderRow(row[subjectColumn] ?? "", lut) : "",
-      body: bodyColumn ? renderRow(row[bodyColumn] ?? "", lut) : "",
+      subject: subjectColumn ? renderRow(firstContact.row[subjectColumn] ?? "", firstContact.lut) : "",
+      body: bodyColumn ? renderRow(firstContact.row[bodyColumn] ?? "", firstContact.lut) : "",
     };
-  }, [composeMode, csvRows, csvHeaders, mapping, subjectColumn, bodyColumn]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [composeMode, firstContact, subjectColumn, bodyColumn]);
 
   const composeReady =
     composeMode === "single"
@@ -757,26 +766,45 @@ export function NewCampaignWizard({
                   />
                 </div>
                 {composeMode === "perRecipient" ? (
-                  <div>
-                    <label className={label}>Body column (HTML, per recipient)</label>
-                    <select
-                      className={cn(input, "mt-1.5")}
-                      value={f.bodyColumn}
-                      onChange={(e) =>
-                        setFollowups((fs) =>
-                          fs.map((x, j) =>
-                            j === i ? { ...x, bodyColumn: e.target.value } : x,
-                          ),
-                        )
-                      }
-                    >
-                      <option value="">Select a column…</option>
-                      {csvHeaders.map((h) => (
-                        <option key={h} value={h}>
-                          {h}
-                        </option>
-                      ))}
-                    </select>
+                  <div className="space-y-3">
+                    <div>
+                      <label className={label}>Body column (HTML, per recipient)</label>
+                      <select
+                        className={cn(input, "mt-1.5")}
+                        value={f.bodyColumn}
+                        onChange={(e) =>
+                          setFollowups((fs) =>
+                            fs.map((x, j) =>
+                              j === i ? { ...x, bodyColumn: e.target.value } : x,
+                            ),
+                          )
+                        }
+                      >
+                        <option value="">Select a column…</option>
+                        {csvHeaders.map((h) => (
+                          <option key={h} value={h}>
+                            {h}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    {f.bodyColumn && (
+                      <div className="space-y-1.5 rounded-md border border-line bg-surface p-3">
+                        <p className="text-xs font-medium uppercase tracking-wide text-faint">
+                          Preview · first contact
+                        </p>
+                        {renderColumn(f.bodyColumn) ? (
+                          <div
+                            className="prose-email max-h-48 overflow-auto text-ink"
+                            dangerouslySetInnerHTML={{ __html: renderColumn(f.bodyColumn) }}
+                          />
+                        ) : (
+                          <p className="text-sm text-faint">
+                            Empty for this contact.
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div>
